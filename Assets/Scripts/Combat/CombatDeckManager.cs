@@ -10,7 +10,8 @@ namespace DigiPurity.Combat
         Burn,
         Bleed,
         Poise,
-        Drainage
+        Drainage,
+        Stutter // DIGIPURITY adaptation of Tremor
     }
 
     [Serializable]
@@ -32,7 +33,9 @@ namespace DigiPurity.Combat
     {
         Skill1_PureDamage,
         Skill2_HighPowerRare,
-        DefenseSkill
+        DefenseSkill,
+        Skill3_KeywordSpecialist,  // Unlocked based on your dominant build keyword
+        Skill4_UltimateMove        // Rare draw, consumes Charge, massive keyword payload
     }
 
     [Serializable]
@@ -43,6 +46,7 @@ namespace DigiPurity.Combat
         public int basePower = 4;
         public int coinPower = 3;
         public int coinCount = 2;
+        public int chargeCost = 0; // For Ultimate moves (Skill 4)
         public List<KeywordStatus> appliedKeywords = new List<KeywordStatus>();
 
         public static CombatSkill CreateSkill1()
@@ -80,12 +84,44 @@ namespace DigiPurity.Combat
                 coinCount = 1
             };
         }
+
+        public static CombatSkill CreateSkill3(KeywordType affinity)
+        {
+            var skill = new CombatSkill
+            {
+                skillName = $"{affinity} Protocol",
+                tier = SkillTier.Skill3_KeywordSpecialist,
+                basePower = 7,
+                coinPower = 4,
+                coinCount = 3
+            };
+            skill.appliedKeywords.Add(new KeywordStatus(affinity, pot: 5, cnt: 3));
+            return skill;
+        }
+
+        public static CombatSkill CreateSkill4Ultimate(KeywordType affinity, int cost = 20)
+        {
+            var skill = new CombatSkill
+            {
+                skillName = $"TERMINAL PURGE: {affinity.ToString().ToUpper()}",
+                tier = SkillTier.Skill4_UltimateMove,
+                basePower = 15,
+                coinPower = 6,
+                coinCount = 4,
+                chargeCost = cost
+            };
+            skill.appliedKeywords.Add(new KeywordStatus(affinity, pot: 12, cnt: 6));
+            return skill;
+        }
     }
 
     public class CombatDeckManager
     {
         private readonly List<CombatSkill> _deck = new List<CombatSkill>();
         private readonly System.Random _random;
+        public KeywordType CurrentAffinity { get; set; } = KeywordType.None;
+        public bool HasUnlockedSkill3 { get; set; } = false;
+        public bool HasUnlockedSkill4 { get; set; } = false;
 
         public CombatDeckManager(int? seed = null)
         {
@@ -96,10 +132,22 @@ namespace DigiPurity.Combat
         public void InitializeStandardDeck()
         {
             _deck.Clear();
-            // Limbus/OFF ratio: 3x Skill 1, 1x Skill 2, 2x Defense
+            // Base deck: 3x Skill 1, 1x Skill 2, 2x Defense
             for (int i = 0; i < 3; i++) _deck.Add(CombatSkill.CreateSkill1());
             _deck.Add(CombatSkill.CreateSkill2());
             for (int i = 0; i < 2; i++) _deck.Add(CombatSkill.CreateDefense());
+
+            if (HasUnlockedSkill3 && CurrentAffinity != KeywordType.None)
+            {
+                // Skill 3 is a specialized keyword skill
+                _deck.Add(CombatSkill.CreateSkill3(CurrentAffinity));
+            }
+
+            if (HasUnlockedSkill4 && CurrentAffinity != KeywordType.None)
+            {
+                // Skill 4 is an ultimate move that appears very rarely
+                _deck.Add(CombatSkill.CreateSkill4Ultimate(CurrentAffinity));
+            }
         }
 
         public CombatSkill DrawSkill()

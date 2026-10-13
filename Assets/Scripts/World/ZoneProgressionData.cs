@@ -10,7 +10,28 @@ namespace DigiPurity.World
         public int encountersInZone = 0;
         public int maxEncountersPerZone = 25; // OFF-style encounter ceiling per zone
         public int totalExp = 0;
-        public int purityLevel = 1;
+        public int currentLevel = 1;
+
+        /// <summary>
+        /// Zone 1 Cap: 25
+        /// Zone 2 Cap: 50
+        /// Zone 3 Cap: 75
+        /// Zone 4 Cap: 100
+        /// </summary>
+        public int MaxLevelForCurrentZone
+        {
+            get
+            {
+                switch (currentZone)
+                {
+                    case 1: return 25;
+                    case 2: return 50;
+                    case 3: return 75;
+                    case 4: return 100;
+                    default: return 100;
+                }
+            }
+        }
 
         public bool CanTriggerEncounter()
         {
@@ -29,10 +50,18 @@ namespace DigiPurity.World
 
         private void CheckLevelUp()
         {
-            // Undertale LV curve: Lv 2 @ 10, Lv 3 @ 30, Lv 4 @ 70
-            if (totalExp >= 70) purityLevel = 4;
-            else if (totalExp >= 30) purityLevel = 3;
-            else if (totalExp >= 10) purityLevel = 2;
+            // Level formula: 10 EXP per level, capped at the active zone's level ceiling
+            int calculatedLevel = 1 + (totalExp / 10);
+            currentLevel = Mathf.Min(calculatedLevel, MaxLevelForCurrentZone);
+        }
+
+        public void AdvanceToNextZone()
+        {
+            if (currentZone < 4)
+            {
+                currentZone++;
+                encountersInZone = 0; // Reset encounter counter for the new zone
+            }
         }
     }
 }
