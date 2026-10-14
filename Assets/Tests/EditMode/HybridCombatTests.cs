@@ -52,9 +52,9 @@ namespace DigiPurity.Tests
             var zone = new ZoneProgressionData();
             zone.RecordEncounterFinished(wasPurged: true, baseExp: 20);
 
-            // 20 * 1.5 = 30 EXP -> unlocks Level 3 (threshold 30)
+            // 20 * 1.5 = 30 EXP -> unlocks Level 4 with formula 1 + (30 / 10) = 4, capped at Zone 1 (25)
             Assert.AreEqual(30, zone.totalExp);
-            Assert.AreEqual(3, zone.purityLevel);
+            Assert.AreEqual(4, zone.currentLevel);
         }
     }
 }
