@@ -198,7 +198,7 @@ namespace DigiPurity.World
             }
 
             // 7. Snap Camera to Player & Room Bounds
-            var cam = FindFirstObjectByType<RoomCameraController>();
+            var cam = FindAnyObjectByType<RoomCameraController>();
             if (cam != null)
             {
                 cam.SnapToTarget();
@@ -221,7 +221,7 @@ namespace DigiPurity.World
 
         public static AreaDoor FindDoorById(string id)
         {
-            var doors = FindObjectsByType<AreaDoor>(FindObjectsSortMode.None);
+            var doors = FindObjectsByType<AreaDoor>();
             foreach (var d in doors)
             {
                 if (d.doorId == id) return d;

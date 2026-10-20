@@ -15,7 +15,7 @@ namespace DigiPurity.World
             {
                 if (_instance == null)
                 {
-                    _instance = FindFirstObjectByType<ScreenFader>();
+                    _instance = FindAnyObjectByType<ScreenFader>();
                     if (_instance == null)
                     {
                         var go = new GameObject("ScreenFader");
