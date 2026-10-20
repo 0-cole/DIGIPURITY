@@ -392,61 +392,66 @@ namespace DigiPurity.World
             // Optional room/square clamp bounds check if clampToWalkableSquare is enabled
             if (clampToWalkableSquare)
             {
-                Bounds b = default;
-                bool hasBounds = false;
-
-                var activeRoom = RoomBounds.FindRoomForPosition(transform.position);
-                if (activeRoom != null)
+                // If destination position is inside any active room or connected hallway, allow smooth passage!
+                var destRoom = RoomBounds.FindRoomForPosition(newPos);
+                if (destRoom == null)
                 {
-                    b = activeRoom.Bounds;
-                    hasBounds = true;
-                }
-                else
-                {
-                    if (_floorSquareRenderer == null)
-                    {
-                        FindFloorSquare();
-                    }
+                    Bounds b = default;
+                    bool hasBounds = false;
 
-                    if (_floorSquareRenderer != null)
+                    var activeRoom = RoomBounds.FindRoomForPosition(transform.position);
+                    if (activeRoom != null)
                     {
-                        b = _floorSquareRenderer.bounds;
+                        b = activeRoom.Bounds;
                         hasBounds = true;
                     }
-                }
-
-                if (hasBounds)
-                {
-                    // Pixel-measured extents at 0.95 scale + 0.19 world unit border thickness + 1px safety margin
-                    // Left/Right: max extent is 0.874 + 0.188 border + 0.01 margin = 1.07f
-                    // Top: max head reach is 3.743 + 0.138 border + 0.01 margin = 3.89f
-                    // Bottom: shoe sole is at bottom edge + 0.138 border + 0.01 margin = 0.18f
-                    float halfWidth = 1.07f;
-                    float fullHeight = 3.89f;
-                    float footHeight = 0.18f;
-
-                    float minX = b.min.x + halfWidth;
-                    float maxX = b.max.x - halfWidth;
-                    float minY = b.min.y + footHeight;
-                    float maxY = b.max.y - fullHeight;
-
-                    if (minX < maxX)
+                    else
                     {
-                        float clampedX = Mathf.Clamp(newPos.x, minX, maxX);
-                        if (Mathf.Abs(clampedX - newPos.x) > 0.0001f)
+                        if (_floorSquareRenderer == null)
                         {
-                            actualDx = 0f; // Stopped at border
-                            newPos.x = clampedX;
+                            FindFloorSquare();
+                        }
+
+                        if (_floorSquareRenderer != null)
+                        {
+                            b = _floorSquareRenderer.bounds;
+                            hasBounds = true;
                         }
                     }
 
-                    if (minY < maxY)
+                    if (hasBounds)
                     {
-                        float clampedY = Mathf.Clamp(newPos.y, minY, maxY);
-                        if (Mathf.Abs(clampedY - newPos.y) > 0.0001f)
+                        // Pixel-measured extents at 0.95 scale + 0.19 world unit border thickness + 1px safety margin
+                        // Left/Right: max extent is 0.874 + 0.188 border + 0.01 margin = 1.07f
+                        // Top: max head reach is 3.743 + 0.138 border + 0.01 margin = 3.89f
+                        // Bottom: shoe sole is at bottom edge + 0.138 border + 0.01 margin = 0.18f
+                        float halfWidth = 1.07f;
+                        float fullHeight = 3.89f;
+                        float footHeight = 0.18f;
+
+                        float minX = b.min.x + halfWidth;
+                        float maxX = b.max.x - halfWidth;
+                        float minY = b.min.y + footHeight;
+                        float maxY = b.max.y - fullHeight;
+
+                        if (minX < maxX)
                         {
-                            actualDy = 0f; // Stopped at border
-                            newPos.y = clampedY;
+                            float clampedX = Mathf.Clamp(newPos.x, minX, maxX);
+                            if (Mathf.Abs(clampedX - newPos.x) > 0.0001f)
+                            {
+                                actualDx = 0f; // Stopped at border
+                                newPos.x = clampedX;
+                            }
+                        }
+
+                        if (minY < maxY)
+                        {
+                            float clampedY = Mathf.Clamp(newPos.y, minY, maxY);
+                            if (Mathf.Abs(clampedY - newPos.y) > 0.0001f)
+                            {
+                                actualDy = 0f; // Stopped at border
+                                newPos.y = clampedY;
+                            }
                         }
                     }
                 }

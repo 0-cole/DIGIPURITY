@@ -8,13 +8,14 @@ namespace DigiPurity.World
     {
         [Header("Target & Following")]
         [SerializeField] private Transform target;
+        [Tooltip("Additional manual offset applied from the target's visual center.")]
         [SerializeField] private Vector2 targetOffset = Vector2.zero;
         [SerializeField] private bool smoothFollow = true;
         [SerializeField] private float smoothTime = 0.08f;
 
         [Header("Fixed Camera Sizing & 4:3 Aspect Ratio")]
-        [Tooltip("Fixed camera orthographic size. The camera maintains this set size and will never dynamically increase or zoom out.")]
-        [SerializeField] private float setOrthographicSize = 5f;
+        [Tooltip("Fixed camera orthographic size. Default 6.5 gives a comfortable, spacious retro RPG view where Owen is properly scaled.")]
+        [SerializeField] private float setOrthographicSize = 6.5f;
         [Tooltip("When true, camera size is strictly locked to setOrthographicSize.")]
         [SerializeField] private bool lockCameraSize = true;
         [Tooltip("When true, enforces classic 4:3 aspect ratio (Undertale / Deltarune) with solid black pillarbox/letterbox bars.")]
@@ -55,7 +56,7 @@ namespace DigiPurity.World
             FindTargetIfNeeded();
             FindInitialRoomIfNeeded();
             ApplyCameraSizingAndAspect();
-            // Starting position: instantly snaps to Owen's clamped position inside room (offset to side, no void)
+            // Starting position: instantly snaps to Owen's visual center clamped inside room (offset to side, no void)
             SnapToTarget();
         }
 
@@ -105,9 +106,11 @@ namespace DigiPurity.World
                 if (currentRoom == null) return;
             }
 
+            Vector2 targetCenter = GetTargetCenter(target, targetOffset);
+
             Vector3 desiredPos = CalculateCameraPosition(
-                target.position,
-                targetOffset,
+                targetCenter,
+                Vector2.zero,
                 currentRoom.Bounds,
                 EffectiveOrthographicSize,
                 EffectiveAspect
@@ -131,9 +134,11 @@ namespace DigiPurity.World
             if (_camera == null) _camera = GetComponent<Camera>();
             if (target == null || currentRoom == null || _camera == null) return;
 
+            Vector2 targetCenter = GetTargetCenter(target, targetOffset);
+
             Vector3 desiredPos = CalculateCameraPosition(
-                target.position,
-                targetOffset,
+                targetCenter,
+                Vector2.zero,
                 currentRoom.Bounds,
                 EffectiveOrthographicSize,
                 EffectiveAspect
@@ -141,6 +146,23 @@ namespace DigiPurity.World
             desiredPos.z = transform.position.z;
             transform.position = desiredPos;
             _currentVelocity = Vector3.zero;
+        }
+
+        public static Vector2 GetTargetCenter(Transform targetTransform, Vector2 manualOffset)
+        {
+            if (targetTransform == null) return Vector2.zero;
+
+            // Owen's sprite pivot is at his feet (y=0) and height is ~3.78 units.
+            // Using SpriteRenderer.bounds.center points directly at the character's torso/chest center,
+            // centering Owen vertically in the camera when moving up, down, left, and right.
+            var sr = targetTransform.GetComponentInChildren<SpriteRenderer>();
+            if (sr != null && sr.sprite != null)
+            {
+                return new Vector2(sr.bounds.center.x + manualOffset.x, sr.bounds.center.y + manualOffset.y);
+            }
+
+            // Fallback if no sprite renderer: approximate body center at ~1.85 units above feet
+            return new Vector2(targetTransform.position.x + manualOffset.x, targetTransform.position.y + manualOffset.y + 1.85f);
         }
 
         public void ApplyCameraSizingAndAspect()

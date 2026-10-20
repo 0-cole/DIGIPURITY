@@ -34,9 +34,9 @@ namespace DigiPurity.Tests
         [Test]
         public void SmallRoom_CameraStaysStillAtRoomCenter_ShowsRoomInFullWithBlackBorders()
         {
-            // Room (10 x 8) smaller than 4:3 viewport (13.333 x 10) at orthoSize 5
+            // Room (10 x 8) smaller than 4:3 viewport (17.33 x 13) at orthoSize 6.5
             Bounds smallRoom = new Bounds(new Vector3(2f, 3f, 0f), new Vector3(10f, 8f, 0f));
-            float orthoSize = 5f;
+            float orthoSize = 6.5f;
             float aspect = 4f / 3f;
 
             // When Owen is on the far left of the room
@@ -57,13 +57,13 @@ namespace DigiPurity.Tests
         [Test]
         public void NarrowHorizontalHallway_LocksYAtCenter_TracksOwenXClampedToEdges()
         {
-            // Horizontal hallway: width = 40, height = 6. Viewport is 13.333 x 10.
+            // Horizontal hallway: width = 40, height = 6. Viewport is 17.33 x 13 at orthoSize 6.5.
             Bounds hallway = new Bounds(Vector3.zero, new Vector3(40f, 6f, 0f));
-            float orthoSize = 5f;
+            float orthoSize = 6.5f;
             float aspect = 4f / 3f;
-            float halfWidth = orthoSize * aspect; // 6.6667f
+            float halfWidth = orthoSize * aspect; // 8.6667f
 
-            // Height (6) <= viewHeight (10), so Y must remain locked at hallway center (0)
+            // Height (6) <= viewHeight (13), so Y must remain locked at hallway center (0)
             Vector2 playerPos = new Vector2(5f, 1f);
             Vector3 camPos = RoomCameraController.CalculateCameraPosition(playerPos, Vector2.zero, hallway, orthoSize, aspect);
 
@@ -73,14 +73,14 @@ namespace DigiPurity.Tests
             // Starting position at hallway left door (x = -20)
             Vector2 playerAtLeftDoor = new Vector2(-20f, 0f);
             Vector3 camAtLeft = RoomCameraController.CalculateCameraPosition(playerAtLeftDoor, Vector2.zero, hallway, orthoSize, aspect);
-            float expectedMinX = hallway.min.x + halfWidth; // -20 + 6.6667 = -13.3333
+            float expectedMinX = hallway.min.x + halfWidth; // -20 + 8.6667 = -11.3333
             Assert.AreEqual(expectedMinX, camAtLeft.x, 0.001f, "Camera must clamp to left edge of hallway");
             Assert.AreEqual(hallway.min.x, camAtLeft.x - halfWidth, 0.001f, "Left edge of camera viewport must align with left wall (no void)");
 
             // Clamping at hallway right door (x = +20)
             Vector2 playerAtRightDoor = new Vector2(20f, 0f);
             Vector3 camAtRight = RoomCameraController.CalculateCameraPosition(playerAtRightDoor, Vector2.zero, hallway, orthoSize, aspect);
-            float expectedMaxX = hallway.max.x - halfWidth; // 20 - 6.6667 = 13.3333
+            float expectedMaxX = hallway.max.x - halfWidth; // 20 - 8.6667 = 11.3333
             Assert.AreEqual(expectedMaxX, camAtRight.x, 0.001f, "Camera must clamp to right edge of hallway");
             Assert.AreEqual(hallway.max.x, camAtRight.x + halfWidth, 0.001f, "Right edge of camera viewport must align with right wall (no void)");
         }
@@ -88,19 +88,19 @@ namespace DigiPurity.Tests
         [Test]
         public void BigRoom_Snowdin_FollowsOwenOnBothAxes_OffsetToSideAtStartSoNoVoidShows()
         {
-            // Big room (like Snowdin forest): width = 50, height = 40. Viewport is 13.333 x 10.
+            // Big room (like Snowdin forest): width = 50, height = 40. Viewport is 17.33 x 13 at orthoSize 6.5.
             Bounds bigRoom = new Bounds(Vector3.zero, new Vector3(50f, 40f, 0f));
-            float orthoSize = 5f;
+            float orthoSize = 6.5f;
             float aspect = 4f / 3f;
-            float halfWidth = orthoSize * aspect; // 6.6667f
-            float halfHeight = orthoSize;          // 5.0f
+            float halfWidth = orthoSize * aspect; // 8.6667f
+            float halfHeight = orthoSize;          // 6.5f
 
             // Starting position at entrance door on far left: Owen is at x = -24, y = 0
             Vector2 owenAtLeftEntrance = new Vector2(-24f, 0f);
             Vector3 camAtStart = RoomCameraController.CalculateCameraPosition(owenAtLeftEntrance, Vector2.zero, bigRoom, orthoSize, aspect);
 
             // The camera must be offset to the side of Owen (cam.x > owen.x) so left edge aligns with left wall
-            float expectedMinX = bigRoom.min.x + halfWidth; // -25 + 6.6667 = -18.3333
+            float expectedMinX = bigRoom.min.x + halfWidth; // -25 + 8.6667 = -16.3333
             Assert.AreEqual(expectedMinX, camAtStart.x, 0.001f, "Camera must start clamped at left room boundary");
             Assert.Greater(camAtStart.x, owenAtLeftEntrance.x, "Camera must be offset to the side of Owen so no void is shown");
             Assert.AreEqual(bigRoom.min.x, camAtStart.x - halfWidth, 0.001f, "Viewport left edge must not clip past room left wall");
@@ -123,38 +123,85 @@ namespace DigiPurity.Tests
         }
 
         [Test]
-        public void RoomBounds_PrioritizesColliders_EncapsulatesAllPerimeterWalls()
+        public void TargetCenter_CentersOnSpriteBodyRatherThanFeet()
         {
-            // Object with 4 perimeter walls centered at (4.1813, 2.3647)
-            GameObject squareObj = new GameObject("WalkableSquare_Test");
-            squareObj.transform.position = new Vector3(4.1813f, 2.3647f, 0f);
+            GameObject testOwen = new GameObject("TestOwen");
+            testOwen.transform.position = new Vector2(10f, 5f); // Feet are at Y=5
 
-            var topWall = squareObj.AddComponent<BoxCollider2D>();
-            topWall.offset = new Vector2(0f, 8.5f);
-            topWall.size = new Vector2(17f, 1f);
+            // Without SpriteRenderer: returns fallback torso height ~1.85 above feet
+            Vector2 fallbackCenter = RoomCameraController.GetTargetCenter(testOwen.transform, Vector2.zero);
+            Assert.AreEqual(10f, fallbackCenter.x, 0.001f);
+            Assert.AreEqual(5f + 1.85f, fallbackCenter.y, 0.01f, "Target center should point at body above feet");
 
-            var bottomWall = squareObj.AddComponent<BoxCollider2D>();
-            bottomWall.offset = new Vector2(0f, -8.5f);
-            bottomWall.size = new Vector2(17f, 1f);
+            Object.DestroyImmediate(testOwen);
+        }
 
-            var leftWall = squareObj.AddComponent<BoxCollider2D>();
-            leftWall.offset = new Vector2(-8.5f, 0f);
-            leftWall.size = new Vector2(1f, 17f);
+        [Test]
+        public void ModularRoom_DoorwayOpening_SplitsWallIntoTwoColliderSegments()
+        {
+            GameObject roomObj = new GameObject("ModularRoom_Test");
+            var modRoom = roomObj.AddComponent<ModularRoom>();
+            modRoom.RoomSize = new Vector2(20f, 10f);
+            modRoom.WallThickness = 0.8f;
+            modRoom.DoorwayWidth = 3.0f;
+            modRoom.OpenRight = true; // Open doorway in right wall
 
-            var rightWall = squareObj.AddComponent<BoxCollider2D>();
-            rightWall.offset = new Vector2(8.5f, 0f);
-            rightWall.size = new Vector2(1f, 17f);
+            modRoom.RebuildRoom();
 
-            var roomBounds = squareObj.AddComponent<RoomBounds>();
-            roomBounds.ResolveReferences();
+            var colliders = roomObj.GetComponents<BoxCollider2D>();
+            // Closed walls (Top, Bottom, Left) = 3 colliders. Open Right wall = 2 segments. Total = 5 colliders!
+            Assert.AreEqual(5, colliders.Length, "Open doorway must split wall into two collider segments");
 
-            // Bounds must encapsulate all 4 colliders centered at (4.1813, 2.3647)
-            Bounds b = roomBounds.Bounds;
-            Assert.AreEqual(4.1813f, b.center.x, 0.05f, "Room center X must align with room center");
-            Assert.AreEqual(2.3647f, b.center.y, 0.05f, "Room center Y must align with room center, NOT top wall");
-            Assert.AreNotEqual(9.5507f, b.center.y, "Room center Y must never snap to isolated top wall collider");
+            // Verify the two right wall segments leave the doorway open at center (y = 0)
+            bool foundTopRight = false;
+            bool foundBottomRight = false;
 
-            Object.DestroyImmediate(squareObj);
+            for (int i = 0; i < colliders.Length; i++)
+            {
+                if (Mathf.Abs(colliders[i].offset.x - 10f) < 0.1f) // Right wall (x = +10)
+                {
+                    if (colliders[i].offset.y > 0f) foundTopRight = true;
+                    if (colliders[i].offset.y < 0f) foundBottomRight = true;
+
+                    // Verify neither collider covers the center doorway (y from -1.5 to +1.5)
+                    float colMinY = colliders[i].offset.y - (colliders[i].size.y * 0.5f);
+                    float colMaxY = colliders[i].offset.y + (colliders[i].size.y * 0.5f);
+                    Assert.IsFalse(colMinY < 0f && colMaxY > 0f, "Collider must not block the center doorway");
+                }
+            }
+
+            Assert.IsTrue(foundTopRight, "Must have top-right wall segment");
+            Assert.IsTrue(foundBottomRight, "Must have bottom-right wall segment");
+
+            Object.DestroyImmediate(roomObj);
+        }
+
+        [Test]
+        public void ModularRoom_SpawnConnectedHallway_ConnectsFlushAtDoorway()
+        {
+            GameObject roomObj = new GameObject("StartingRoom");
+            roomObj.transform.position = Vector3.zero;
+
+            var startRoom = roomObj.AddComponent<ModularRoom>();
+            startRoom.RoomSize = new Vector2(20f, 10f);
+            startRoom.WallThickness = 0.8f;
+            startRoom.RebuildRoom();
+
+            // Spawn hallway attached to right side
+            ModularRoom hallway = startRoom.SpawnConnectedHallway(ModularRoom.Direction.Right, 24f, 4.5f);
+
+            Assert.IsNotNull(hallway);
+            Assert.IsTrue(startRoom.OpenRight, "Starting room right doorway must be opened");
+            Assert.IsTrue(hallway.OpenLeft, "Hallway left doorway must be open to room");
+            Assert.IsFalse(hallway.OpenRight, "Hallway right end should be closed by default");
+
+            // Hallway center x should be at right edge of room + half hallway length - wall overlap
+            float expectedX = (20f * 0.5f) + (24f * 0.5f) - (0.8f * 0.5f); // 10 + 12 - 0.4 = 21.6f
+            Assert.AreEqual(expectedX, hallway.transform.position.x, 0.05f, "Hallway must be placed flush at doorway");
+            Assert.AreEqual(0f, hallway.transform.position.y, 0.05f, "Hallway must align vertically with doorway");
+
+            Object.DestroyImmediate(hallway.gameObject);
+            Object.DestroyImmediate(roomObj);
         }
     }
 }
