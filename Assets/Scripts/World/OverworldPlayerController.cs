@@ -109,6 +109,20 @@ namespace DigiPurity.World
                 }
             }
 
+            // Ensure WalkableSquare has RoomBounds attached
+            if (squareObj != null && squareObj.GetComponent<RoomBounds>() == null)
+            {
+                squareObj.AddComponent<RoomBounds>();
+            }
+
+            // Ensure Camera has RoomCameraController attached
+            Camera mainCam = Camera.main;
+            if (mainCam == null) mainCam = FindAnyObjectByType<Camera>();
+            if (mainCam != null && mainCam.GetComponent<RoomCameraController>() == null)
+            {
+                mainCam.gameObject.AddComponent<RoomCameraController>();
+            }
+
             // Ensure Owen exists and has OverworldPlayerController attached
             OverworldPlayerController existingController = FindAnyObjectByType<OverworldPlayerController>();
             if (existingController == null)
@@ -375,17 +389,34 @@ namespace DigiPurity.World
 
             Vector3 newPos = transform.position + new Vector3(actualDx, actualDy, 0f);
 
-            // Optional square clamp bounds check if clampToWalkableSquare is enabled
+            // Optional room/square clamp bounds check if clampToWalkableSquare is enabled
             if (clampToWalkableSquare)
             {
-                if (_floorSquareRenderer == null)
+                Bounds b = default;
+                bool hasBounds = false;
+
+                var activeRoom = RoomBounds.FindRoomForPosition(transform.position);
+                if (activeRoom != null)
                 {
-                    FindFloorSquare();
+                    b = activeRoom.Bounds;
+                    hasBounds = true;
+                }
+                else
+                {
+                    if (_floorSquareRenderer == null)
+                    {
+                        FindFloorSquare();
+                    }
+
+                    if (_floorSquareRenderer != null)
+                    {
+                        b = _floorSquareRenderer.bounds;
+                        hasBounds = true;
+                    }
                 }
 
-                if (_floorSquareRenderer != null)
+                if (hasBounds)
                 {
-                    Bounds b = _floorSquareRenderer.bounds;
                     // Pixel-measured extents at 0.95 scale + 0.19 world unit border thickness + 1px safety margin
                     // Left/Right: max extent is 0.874 + 0.188 border + 0.01 margin = 1.07f
                     // Top: max head reach is 3.743 + 0.138 border + 0.01 margin = 3.89f
