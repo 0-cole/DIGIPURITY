@@ -120,8 +120,7 @@ namespace DigiPurity.World
             if (changed && Vector2.Distance(targetSize, roomSize) > 0.02f)
             {
                 roomSize = targetSize;
-                // Smooth in-place collider update (NEVER DestroyImmediate during a drag!)
-                UpdateCollidersSmoothly();
+                UpdateColliders();
             }
         }
 
@@ -201,7 +200,7 @@ namespace DigiPurity.World
             _lastKnownScale = transform.localScale;
 
             // 2. Rebuild Colliders
-            RebuildCollidersStructure();
+            UpdateColliders();
 
             // 3. Ensure RoomBounds is configured
             var rb = GetComponent<RoomBounds>();
@@ -212,49 +211,59 @@ namespace DigiPurity.World
 
         public void RebuildCollidersStructure()
         {
-            var existingColliders = GetComponents<BoxCollider2D>();
-            for (int i = existingColliders.Length - 1; i >= 0; i--)
-            {
-                if (Application.isPlaying)
-                {
-                    Destroy(existingColliders[i]);
-                }
-                else
-                {
-                    DestroyImmediate(existingColliders[i]);
-                }
-            }
-
-            UpdateCollidersSmoothly();
-
-            var rb = GetComponent<RoomBounds>();
-            if (rb != null) rb.ResolveReferences();
+            UpdateColliders();
         }
 
         public void UpdateCollidersSmoothly()
         {
+            UpdateColliders();
+        }
+
+        public void UpdateColliders()
+        {
+            int expectedCount = (openTop ? 2 : 1) + (openBottom ? 2 : 1) + (openLeft ? 2 : 1) + (openRight ? 2 : 1);
+            var colliders = GetComponents<BoxCollider2D>();
+
+            // Adjust collider count to match expectedCount strictly without recursive loops
+            if (colliders.Length < expectedCount)
+            {
+                int needed = expectedCount - colliders.Length;
+                for (int i = 0; i < needed; i++)
+                {
+                    gameObject.AddComponent<BoxCollider2D>();
+                }
+                colliders = GetComponents<BoxCollider2D>();
+            }
+            else if (colliders.Length > expectedCount)
+            {
+                int excess = colliders.Length - expectedCount;
+                for (int i = 0; i < excess; i++)
+                {
+                    var col = colliders[colliders.Length - 1 - i];
+                    if (Application.isPlaying)
+                    {
+                        Destroy(col);
+                    }
+                    else
+                    {
+                        DestroyImmediate(col);
+                    }
+                }
+                colliders = GetComponents<BoxCollider2D>();
+            }
+
             float sx = Mathf.Abs(transform.localScale.x) > 0.001f ? Mathf.Abs(transform.localScale.x) : 1f;
             float sy = Mathf.Abs(transform.localScale.y) > 0.001f ? Mathf.Abs(transform.localScale.y) : 1f;
 
-            // Compute local-space dimensions accounting for transform scale
+            // Local-space dimensions accounting for transform scale
             float localW = roomSize.x / sx;
             float localH = roomSize.y / sy;
             float halfW = localW * 0.5f;
             float halfH = localH * 0.5f;
             float tX = wallThickness / sx;
             float tY = wallThickness / sy;
-            float dX = Mathf.Clamp(doorwayWidth / sx, 1.0f, localW - 0.5f);
-            float dY = Mathf.Clamp(doorwayWidth / sy, 1.0f, localH - 0.5f);
-
-            int expectedCount = (openTop ? 2 : 1) + (openBottom ? 2 : 1) + (openLeft ? 2 : 1) + (openRight ? 2 : 1);
-            var colliders = GetComponents<BoxCollider2D>();
-
-            if (colliders.Length != expectedCount)
-            {
-                // Rebuild structure if count differs
-                RebuildCollidersStructure();
-                return;
-            }
+            float dX = Mathf.Clamp(doorwayWidth / sx, 1.0f, Mathf.Max(1.0f, localW - 0.5f));
+            float dY = Mathf.Clamp(doorwayWidth / sy, 1.0f, Mathf.Max(1.0f, localH - 0.5f));
 
             int idx = 0;
 
@@ -309,6 +318,9 @@ namespace DigiPurity.World
                 SetCollider(colliders[idx++], new Vector2(+halfW, -segY), new Vector2(tX, segLen));
                 SetCollider(colliders[idx++], new Vector2(+halfW, +segY), new Vector2(tX, segLen));
             }
+
+            var rb = GetComponent<RoomBounds>();
+            if (rb != null) rb.ResolveReferences();
         }
 
         private void SetCollider(BoxCollider2D col, Vector2 offset, Vector2 size)
