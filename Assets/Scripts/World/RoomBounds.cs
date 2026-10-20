@@ -12,6 +12,7 @@ namespace DigiPurity.World
         [SerializeField] private string roomName = "Room";
 
         [Header("Bounds Source")]
+        [Tooltip("Auto prioritizes Colliders (triggers & perimeter walls), then SpriteRenderer floor, or Manual bounds.")]
         [SerializeField] private BoundsSource source = BoundsSource.Auto;
         [SerializeField] private Collider2D roomCollider;
         [SerializeField] private SpriteRenderer roomSpriteRenderer;
@@ -34,6 +35,12 @@ namespace DigiPurity.World
                     case BoundsSource.Manual:
                         return new Bounds(transform.position + manualBounds.center, manualBounds.size);
 
+                    case BoundsSource.Collider:
+                        if (roomCollider != null && roomCollider.enabled) return roomCollider.bounds;
+                        Bounds colBounds = GetCompositeColliderBounds();
+                        if (colBounds.size != Vector3.zero) return colBounds;
+                        break;
+
                     case BoundsSource.SpriteRenderer:
                         if (roomSpriteRenderer != null && roomSpriteRenderer.sprite != null)
                             return roomSpriteRenderer.bounds;
@@ -44,27 +51,15 @@ namespace DigiPurity.World
                         if (childSrBounds.size != Vector3.zero) return childSrBounds;
                         break;
 
-                    case BoundsSource.Collider:
-                        if (roomCollider != null) return roomCollider.bounds;
-                        Bounds colBounds = GetCompositeColliderBounds();
-                        if (colBounds.size != Vector3.zero) return colBounds;
-                        break;
-
                     case BoundsSource.Auto:
                     default:
-                        // 1. Floor SpriteRenderer (visual room boundary)
-                        var floorSr = roomSpriteRenderer != null ? roomSpriteRenderer : GetComponent<SpriteRenderer>();
-                        if (floorSr != null && floorSr.enabled && floorSr.sprite != null)
-                        {
-                            return floorSr.bounds;
-                        }
-
-                        // 2. Trigger collider (designated room zone volume)
-                        if (roomCollider != null && roomCollider.enabled && roomCollider.isTrigger)
+                        // 1. Explicitly assigned collider
+                        if (roomCollider != null && roomCollider.enabled)
                         {
                             return roomCollider.bounds;
                         }
 
+                        // 2. Check for trigger collider on this GameObject (explicit room zone volume)
                         var allColliders = GetComponents<Collider2D>();
                         for (int i = 0; i < allColliders.Length; i++)
                         {
@@ -74,29 +69,40 @@ namespace DigiPurity.World
                             }
                         }
 
-                        // 3. Perimeter walls / multiple colliders: encapsulate all colliders
-                        if (allColliders.Length > 1)
+                        // 3. Perimeter wall colliders / multiple colliders: encapsulate all colliders
+                        // (e.g. 4 perimeter walls enclosing a room or hallway)
+                        if (allColliders != null && allColliders.Length > 1)
                         {
-                            Bounds composite = GetCompositeColliderBounds();
-                            if (composite.size != Vector3.zero) return composite;
+                            Bounds compositeCol = GetCompositeColliderBounds();
+                            if (compositeCol.size != Vector3.zero) return compositeCol;
                         }
 
-                        // 4. Single collider
-                        if (roomCollider != null && roomCollider.enabled)
-                        {
-                            return roomCollider.bounds;
-                        }
-                        if (allColliders.Length == 1 && allColliders[0].enabled)
+                        // 4. Single non-trigger collider on this GameObject
+                        if (allColliders != null && allColliders.Length == 1 && allColliders[0].enabled)
                         {
                             return allColliders[0].bounds;
                         }
 
-                        // 5. Children renderers or colliders fallback
-                        Bounds childSr = GetCompositeRendererBounds();
-                        if (childSr.size != Vector3.zero) return childSr;
+                        // 5. Child colliders (e.g. trigger or composite child wall colliders)
+                        Bounds childColBounds = GetCompositeColliderBounds();
+                        if (childColBounds.size != Vector3.zero)
+                        {
+                            return childColBounds;
+                        }
 
-                        Bounds childCol = GetCompositeColliderBounds();
-                        if (childCol.size != Vector3.zero) return childCol;
+                        // 6. Floor SpriteRenderer (visual room graphic boundary)
+                        var floorSr = roomSpriteRenderer != null ? roomSpriteRenderer : GetComponent<SpriteRenderer>();
+                        if (floorSr != null && floorSr.enabled && floorSr.sprite != null)
+                        {
+                            return floorSr.bounds;
+                        }
+
+                        // 7. Child renderers
+                        Bounds childRenderBounds = GetCompositeRendererBounds();
+                        if (childRenderBounds.size != Vector3.zero)
+                        {
+                            return childRenderBounds;
+                        }
                         break;
                 }
 
@@ -114,6 +120,16 @@ namespace DigiPurity.World
 
             if (colliders != null && colliders.Length > 0)
             {
+                // If any trigger collider exists, prefer it as the room volume
+                for (int i = 0; i < colliders.Length; i++)
+                {
+                    if (colliders[i].enabled && colliders[i].isTrigger)
+                    {
+                        return colliders[i].bounds;
+                    }
+                }
+
+                // Encapsulate all enabled colliders (e.g. 4 perimeter walls)
                 bool hasInitial = false;
                 Bounds composite = new Bounds();
                 for (int i = 0; i < colliders.Length; i++)
@@ -186,18 +202,21 @@ namespace DigiPurity.World
             if (roomSpriteRenderer == null) roomSpriteRenderer = GetComponent<SpriteRenderer>();
 
             var colliders = GetComponents<Collider2D>();
-            if (roomCollider == null)
+            if (roomCollider == null && colliders != null)
             {
-                // Only auto-assign roomCollider if there is a single trigger collider
-                if (colliders != null && colliders.Length == 1 && colliders[0].isTrigger)
+                // If there's an explicit trigger collider, bind to it
+                for (int i = 0; i < colliders.Length; i++)
                 {
-                    roomCollider = colliders[0];
+                    if (colliders[i].isTrigger)
+                    {
+                        roomCollider = colliders[i];
+                        break;
+                    }
                 }
             }
-            else if (colliders != null && colliders.Length > 1 && !roomCollider.isTrigger)
+            else if (colliders != null && colliders.Length > 1 && roomCollider != null && !roomCollider.isTrigger)
             {
-                // If roomCollider was auto-assigned to one of multiple walls, clear it
-                // so Auto bounds encapsulates all walls or uses the floor sprite
+                // Clear single-wall collider binding so all perimeter walls are encapsulated
                 roomCollider = null;
             }
         }
@@ -218,9 +237,10 @@ namespace DigiPurity.World
                 }
             }
 
+            // Room Bounds check with 0.05 margin so edge positions are inside
             Bounds b = Bounds;
-            return point.x >= b.min.x && point.x <= b.max.x &&
-                   point.y >= b.min.y && point.y <= b.max.y;
+            return point.x >= (b.min.x - 0.05f) && point.x <= (b.max.x + 0.05f) &&
+                   point.y >= (b.min.y - 0.05f) && point.y <= (b.max.y + 0.05f);
         }
 
         public static RoomBounds FindRoomForPosition(Vector2 position, RoomBounds currentRoom = null)
