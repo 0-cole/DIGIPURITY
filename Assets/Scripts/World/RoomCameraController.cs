@@ -14,8 +14,8 @@ namespace DigiPurity.World
         [SerializeField] private float smoothTime = 0.08f;
 
         [Header("Fixed Camera Sizing & 4:3 Aspect Ratio")]
-        [Tooltip("Fixed camera orthographic size. Default 6.5 gives a comfortable, spacious retro RPG view where Owen is properly scaled.")]
-        [SerializeField] private float setOrthographicSize = 6.5f;
+        [Tooltip("Fixed camera orthographic size. 6.0 gives a 16-unit wide 4:3 viewport that aligns with a 16x16 retro room.")]
+        [SerializeField] private float setOrthographicSize = 6.0f;
         [Tooltip("When true, camera size is strictly locked to setOrthographicSize.")]
         [SerializeField] private bool lockCameraSize = true;
         [Tooltip("When true, enforces classic 4:3 aspect ratio (Undertale / Deltarune) with solid black pillarbox/letterbox bars.")]
@@ -223,24 +223,29 @@ namespace DigiPurity.World
 
         private void OnGUI()
         {
-            if (!enforce4By3Aspect || _camera == null) return;
+            if (!enforce4By3Aspect || _camera == null || Event.current.type != EventType.Repaint) return;
 
             Rect r = _camera.rect;
+            int prevDepth = GUI.depth;
+            GUI.depth = -1500;
+
             // Draw pure black bars over the non-rendered margins for widescreen / ultrawide displays
-            if (r.x > 0.0001f)
+            if (r.x > 0.001f)
             {
                 float leftWidth = r.x * Screen.width;
                 GUI.DrawTexture(new Rect(0, 0, leftWidth, Screen.height), Texture2D.blackTexture);
                 float rightX = (r.x + r.width) * Screen.width;
                 GUI.DrawTexture(new Rect(rightX, 0, Screen.width - rightX, Screen.height), Texture2D.blackTexture);
             }
-            if (r.y > 0.0001f)
+            if (r.y > 0.001f)
             {
                 float barHeight = r.y * Screen.height;
                 GUI.DrawTexture(new Rect(0, 0, Screen.width, barHeight), Texture2D.blackTexture);
                 float bottomY = (r.y + r.height) * Screen.height;
                 GUI.DrawTexture(new Rect(0, bottomY, Screen.width, Screen.height - bottomY), Texture2D.blackTexture);
             }
+
+            GUI.depth = prevDepth;
         }
 
         private void FindTargetIfNeeded()

@@ -116,7 +116,7 @@ namespace DigiPurity.World
             {
                 squareObj = new GameObject("WalkableSquare");
                 squareObj.transform.position = Vector3.zero;
-                squareObj.transform.localScale = new Vector3(0.75f, 0.55f, 1f);
+                squareObj.transform.localScale = Vector3.one;
                 var sqSr = squareObj.AddComponent<SpriteRenderer>();
                 sqSr.sortingOrder = -10;
 #if UNITY_EDITOR
