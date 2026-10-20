@@ -53,6 +53,33 @@ namespace DigiPurity.World
         public Vector2 MovementInput => _moveInput;
         public FacingDirection CurrentFacing => currentFacing;
 
+        [Header("State / Controls")]
+        [SerializeField] private bool inputLocked = false;
+        public bool InputLocked
+        {
+            get => inputLocked;
+            set
+            {
+                inputLocked = value;
+                if (value)
+                {
+                    _moveInput = Vector2.zero;
+                    _isMoving = false;
+                    _isMovingDiagonally = false;
+                    _isRunning = false;
+                }
+            }
+        }
+
+        public void SetFacingDirection(FacingDirection direction)
+        {
+            currentFacing = direction;
+            _previousFacing = direction;
+            _currentFrame = 0;
+            _animTimer = 0f;
+            UpdateAnimation();
+        }
+
 #if UNITY_EDITOR
         [UnityEditor.InitializeOnLoadMethod]
         private static void EditorAutoSetupScene()
@@ -293,6 +320,16 @@ namespace DigiPurity.World
 
         private void Update()
         {
+            if (inputLocked)
+            {
+                _moveInput = Vector2.zero;
+                _isMoving = false;
+                _isMovingDiagonally = false;
+                _isRunning = false;
+                UpdateAnimation();
+                return;
+            }
+
             float x = 0f;
             float y = 0f;
             bool running = false;
