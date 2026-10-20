@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditor.IMGUI.Controls;
 using UnityEngine;
 
 namespace DigiPurity.World
@@ -6,6 +7,8 @@ namespace DigiPurity.World
     [CustomEditor(typeof(ModularRoom))]
     public class ModularRoomEditor : Editor
     {
+        private BoxBoundsHandle _boundsHandle = new BoxBoundsHandle();
+
         public override void OnInspectorGUI()
         {
             ModularRoom room = (ModularRoom)target;
@@ -34,13 +37,23 @@ namespace DigiPurity.World
             serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.Space(10);
+            EditorGUILayout.BeginHorizontal();
             GUI.backgroundColor = new Color(0.2f, 0.7f, 1f);
-            if (GUILayout.Button("🔄 Rebuild Room & Colliders", GUILayout.Height(32)))
+            if (GUILayout.Button("🔄 Rebuild Room & Colliders", GUILayout.Height(30)))
             {
                 Undo.RecordObject(room, "Rebuild Room");
                 room.RebuildRoom();
                 EditorUtility.SetDirty(room);
             }
+
+            GUI.backgroundColor = new Color(1f, 0.75f, 0.2f);
+            if (GUILayout.Button("🎯 Fit to Current Sprite", GUILayout.Height(30)))
+            {
+                Undo.RecordObject(room, "Fit Room to Sprite");
+                room.FitToSpriteBounds();
+                EditorUtility.SetDirty(room);
+            }
+            EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.Space(10);
             EditorGUILayout.LabelField("➕ Instant Connected Hallway Generator", EditorStyles.boldLabel);
@@ -70,6 +83,38 @@ namespace DigiPurity.World
             EditorGUILayout.EndHorizontal();
 
             GUI.backgroundColor = Color.white;
+        }
+
+        private void OnSceneGUI()
+        {
+            ModularRoom room = (ModularRoom)target;
+            if (room == null) return;
+
+            // Interactive Box Handles directly in the Scene view
+            Matrix4x4 originalMatrix = Handles.matrix;
+            Handles.matrix = room.transform.localToWorldMatrix;
+
+            _boundsHandle.center = Vector3.zero;
+            _boundsHandle.size = new Vector3(room.RoomSize.x, room.RoomSize.y, 0f);
+            _boundsHandle.axes = PrimitiveBoundsHandle.Axes.X | PrimitiveBoundsHandle.Axes.Y;
+            _boundsHandle.wireframeColor = new Color(0.3f, 0.9f, 1f, 0.75f);
+            _boundsHandle.handleColor = new Color(1f, 0.85f, 0.2f, 1f);
+
+            EditorGUI.BeginChangeCheck();
+            _boundsHandle.DrawHandle();
+            if (EditorGUI.EndChangeCheck())
+            {
+                Undo.RecordObject(room, "Resize Modular Room");
+                Vector2 newSize = new Vector2(
+                    Mathf.Max(1f, _boundsHandle.size.x),
+                    Mathf.Max(1f, _boundsHandle.size.y)
+                );
+                room.RoomSize = newSize;
+                room.RebuildRoom();
+                EditorUtility.SetDirty(room);
+            }
+
+            Handles.matrix = originalMatrix;
         }
 
         [MenuItem("GameObject/DIGIPURITY/Create Hallway (Horizontal)", false, 10)]
