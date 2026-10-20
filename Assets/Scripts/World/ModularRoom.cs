@@ -11,7 +11,7 @@ namespace DigiPurity.World
 
         [Header("Room Identity & Dimensions")]
         [SerializeField] private string roomName = "Room";
-        [Tooltip("Room dimensions (Width, Height) in local units.")]
+        [Tooltip("Room dimensions (Width, Height) in world units.")]
         [SerializeField] private Vector2 roomSize = new Vector2(24f, 16f);
         [Tooltip("Thickness of the physical perimeter wall colliders.")]
         [SerializeField] private float wallThickness = 0.8f;
@@ -30,6 +30,8 @@ namespace DigiPurity.World
 
         [Header("Floor Graphics")]
         [SerializeField] private Sprite floorSprite;
+        [Tooltip("When true, tiles the sprite across the room (use for seamless tiles like Floor_Tile). When false, draws as single image (use for WalkableSquare).")]
+        [SerializeField] private bool tileFloor = false;
         [SerializeField] private int sortingOrder = -10;
 
         private Vector2 _lastKnownRendererSize;
@@ -44,11 +46,11 @@ namespace DigiPurity.World
         public float DoorwayWidth { get => doorwayWidth; set => doorwayWidth = value; }
         public string RoomName { get => roomName; set => roomName = value; }
         public Sprite FloorSprite { get => floorSprite; set => floorSprite = value; }
+        public bool TileFloor { get => tileFloor; set => tileFloor = value; }
 
         private void Reset()
         {
             if (string.IsNullOrEmpty(roomName)) roomName = gameObject.name;
-            // When first added to an existing room (like WalkableSquare), adapt to existing visual size
             FitToSpriteBounds();
         }
 
@@ -84,29 +86,42 @@ namespace DigiPurity.World
         public void SyncWithRectToolAndTransform()
         {
             var sr = GetComponent<SpriteRenderer>();
-            bool sizeChanged = false;
+            if (sr == null) return;
 
-            // 1. Detect if user dragged Rect Tool on Tiled SpriteRenderer
-            if (sr != null && sr.drawMode != SpriteDrawMode.Simple)
+            Vector2 targetSize = roomSize;
+            bool changed = false;
+
+            if (sr.drawMode == SpriteDrawMode.Simple)
             {
+                // Simple mode (e.g. WalkableSquare): Rect Tool scales transform.localScale
+                float sx = Mathf.Abs(transform.localScale.x);
+                float sy = Mathf.Abs(transform.localScale.y);
+
+                if (sr.sprite != null && (Mathf.Abs(sx - _lastKnownScale.x) > 0.005f || Mathf.Abs(sy - _lastKnownScale.y) > 0.005f))
+                {
+                    _lastKnownScale = transform.localScale;
+                    float baseW = sr.sprite.rect.width / sr.sprite.pixelsPerUnit;
+                    float baseH = sr.sprite.rect.height / sr.sprite.pixelsPerUnit;
+                    targetSize = new Vector2(baseW * sx, baseH * sy);
+                    changed = true;
+                }
+            }
+            else
+            {
+                // Tiled mode (e.g. Floor_Tile): Rect Tool adjusts sr.size directly
                 if (Vector2.Distance(sr.size, _lastKnownRendererSize) > 0.05f)
                 {
-                    roomSize = sr.size;
                     _lastKnownRendererSize = sr.size;
-                    sizeChanged = true;
+                    targetSize = sr.size;
+                    changed = true;
                 }
             }
 
-            // 2. Detect if user used Scale tool or Rect tool on Simple sprite
-            if (Vector3.Distance(transform.localScale, _lastKnownScale) > 0.01f)
+            if (changed && Vector2.Distance(targetSize, roomSize) > 0.02f)
             {
-                _lastKnownScale = transform.localScale;
-                sizeChanged = true;
-            }
-
-            if (sizeChanged)
-            {
-                RebuildCollidersOnly();
+                roomSize = targetSize;
+                // Smooth in-place collider update (NEVER DestroyImmediate during a drag!)
+                UpdateCollidersSmoothly();
             }
         }
 
@@ -119,13 +134,17 @@ namespace DigiPurity.World
                 floorSprite = sr.sprite;
                 sortingOrder = sr.sortingOrder;
 
-                // If drawing Simple, size is based on sprite bounds in local space
+                // Auto-detect whether to tile: WalkableSquare is a single bordered image, Floor_Tile is seamless
+                tileFloor = !sr.sprite.name.Contains("WalkableSquare");
+
                 float sx = Mathf.Abs(transform.localScale.x) > 0.001f ? Mathf.Abs(transform.localScale.x) : 1f;
                 float sy = Mathf.Abs(transform.localScale.y) > 0.001f ? Mathf.Abs(transform.localScale.y) : 1f;
 
-                if (sr.drawMode == SpriteDrawMode.Simple)
+                if (!tileFloor)
                 {
-                    roomSize = new Vector2(sr.bounds.size.x / sx, sr.bounds.size.y / sy);
+                    float baseW = sr.sprite.rect.width / sr.sprite.pixelsPerUnit;
+                    float baseH = sr.sprite.rect.height / sr.sprite.pixelsPerUnit;
+                    roomSize = new Vector2(baseW * sx, baseH * sy);
                 }
                 else
                 {
@@ -151,6 +170,10 @@ namespace DigiPurity.World
                 floorSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Environment/WalkableSquare.png");
             }
 #endif
+            if (floorSprite != null)
+            {
+                tileFloor = !floorSprite.name.Contains("WalkableSquare");
+            }
         }
 
         [ContextMenu("Rebuild Room & Walls")]
@@ -163,16 +186,22 @@ namespace DigiPurity.World
             if (floorSprite != null)
             {
                 sr.sprite = floorSprite;
-                // Only change to Tiled if sprite supports it or is not custom WalkableSquare
-                sr.drawMode = SpriteDrawMode.Tiled;
-                sr.size = roomSize;
+                if (tileFloor)
+                {
+                    sr.drawMode = SpriteDrawMode.Tiled;
+                    sr.size = roomSize;
+                }
+                else
+                {
+                    sr.drawMode = SpriteDrawMode.Simple;
+                }
             }
             sr.sortingOrder = sortingOrder;
             _lastKnownRendererSize = sr.size;
             _lastKnownScale = transform.localScale;
 
             // 2. Rebuild Colliders
-            RebuildCollidersOnly();
+            RebuildCollidersStructure();
 
             // 3. Ensure RoomBounds is configured
             var rb = GetComponent<RoomBounds>();
@@ -181,7 +210,7 @@ namespace DigiPurity.World
             rb.ResolveReferences();
         }
 
-        public void RebuildCollidersOnly()
+        public void RebuildCollidersStructure()
         {
             var existingColliders = GetComponents<BoxCollider2D>();
             for (int i = existingColliders.Length - 1; i >= 0; i--)
@@ -196,70 +225,95 @@ namespace DigiPurity.World
                 }
             }
 
-            float halfW = roomSize.x * 0.5f;
-            float halfH = roomSize.y * 0.5f;
-            float t = wallThickness;
-            float d = Mathf.Clamp(doorwayWidth, 1.0f, Mathf.Min(roomSize.x, roomSize.y) - 0.5f);
-
-            // --- TOP WALL (y = +halfH) ---
-            if (!openTop)
-            {
-                AddWallCollider(new Vector2(0f, halfH), new Vector2(roomSize.x, t));
-            }
-            else
-            {
-                float segmentLen = (roomSize.x - d) * 0.5f;
-                float segCenterX = (d + segmentLen) * 0.5f;
-                AddWallCollider(new Vector2(-segCenterX, halfH), new Vector2(segmentLen, t));
-                AddWallCollider(new Vector2(+segCenterX, halfH), new Vector2(segmentLen, t));
-            }
-
-            // --- BOTTOM WALL (y = -halfH) ---
-            if (!openBottom)
-            {
-                AddWallCollider(new Vector2(0f, -halfH), new Vector2(roomSize.x, t));
-            }
-            else
-            {
-                float segmentLen = (roomSize.x - d) * 0.5f;
-                float segCenterX = (d + segmentLen) * 0.5f;
-                AddWallCollider(new Vector2(-segCenterX, -halfH), new Vector2(segmentLen, t));
-                AddWallCollider(new Vector2(+segCenterX, -halfH), new Vector2(segmentLen, t));
-            }
-
-            // --- LEFT WALL (x = -halfW) ---
-            if (!openLeft)
-            {
-                AddWallCollider(new Vector2(-halfW, 0f), new Vector2(t, roomSize.y));
-            }
-            else
-            {
-                float segmentLen = (roomSize.y - d) * 0.5f;
-                float segCenterY = (d + segmentLen) * 0.5f;
-                AddWallCollider(new Vector2(-halfW, -segCenterY), new Vector2(t, segmentLen));
-                AddWallCollider(new Vector2(-halfW, +segCenterY), new Vector2(t, segmentLen));
-            }
-
-            // --- RIGHT WALL (x = +halfW) ---
-            if (!openRight)
-            {
-                AddWallCollider(new Vector2(+halfW, 0f), new Vector2(t, roomSize.y));
-            }
-            else
-            {
-                float segmentLen = (roomSize.y - d) * 0.5f;
-                float segCenterY = (d + segmentLen) * 0.5f;
-                AddWallCollider(new Vector2(+halfW, -segCenterY), new Vector2(t, segmentLen));
-                AddWallCollider(new Vector2(+halfW, +segCenterY), new Vector2(t, segmentLen));
-            }
+            UpdateCollidersSmoothly();
 
             var rb = GetComponent<RoomBounds>();
             if (rb != null) rb.ResolveReferences();
         }
 
-        private void AddWallCollider(Vector2 offset, Vector2 size)
+        public void UpdateCollidersSmoothly()
         {
-            var col = gameObject.AddComponent<BoxCollider2D>();
+            float sx = Mathf.Abs(transform.localScale.x) > 0.001f ? Mathf.Abs(transform.localScale.x) : 1f;
+            float sy = Mathf.Abs(transform.localScale.y) > 0.001f ? Mathf.Abs(transform.localScale.y) : 1f;
+
+            // Compute local-space dimensions accounting for transform scale
+            float localW = roomSize.x / sx;
+            float localH = roomSize.y / sy;
+            float halfW = localW * 0.5f;
+            float halfH = localH * 0.5f;
+            float tX = wallThickness / sx;
+            float tY = wallThickness / sy;
+            float dX = Mathf.Clamp(doorwayWidth / sx, 1.0f, localW - 0.5f);
+            float dY = Mathf.Clamp(doorwayWidth / sy, 1.0f, localH - 0.5f);
+
+            int expectedCount = (openTop ? 2 : 1) + (openBottom ? 2 : 1) + (openLeft ? 2 : 1) + (openRight ? 2 : 1);
+            var colliders = GetComponents<BoxCollider2D>();
+
+            if (colliders.Length != expectedCount)
+            {
+                // Rebuild structure if count differs
+                RebuildCollidersStructure();
+                return;
+            }
+
+            int idx = 0;
+
+            // --- TOP WALL (y = +halfH) ---
+            if (!openTop)
+            {
+                SetCollider(colliders[idx++], new Vector2(0f, halfH), new Vector2(localW, tY));
+            }
+            else
+            {
+                float segLen = (localW - dX) * 0.5f;
+                float segX = (dX + segLen) * 0.5f;
+                SetCollider(colliders[idx++], new Vector2(-segX, halfH), new Vector2(segLen, tY));
+                SetCollider(colliders[idx++], new Vector2(+segX, halfH), new Vector2(segLen, tY));
+            }
+
+            // --- BOTTOM WALL (y = -halfH) ---
+            if (!openBottom)
+            {
+                SetCollider(colliders[idx++], new Vector2(0f, -halfH), new Vector2(localW, tY));
+            }
+            else
+            {
+                float segLen = (localW - dX) * 0.5f;
+                float segX = (dX + segLen) * 0.5f;
+                SetCollider(colliders[idx++], new Vector2(-segX, -halfH), new Vector2(segLen, tY));
+                SetCollider(colliders[idx++], new Vector2(+segX, -halfH), new Vector2(segLen, tY));
+            }
+
+            // --- LEFT WALL (x = -halfW) ---
+            if (!openLeft)
+            {
+                SetCollider(colliders[idx++], new Vector2(-halfW, 0f), new Vector2(tX, localH));
+            }
+            else
+            {
+                float segLen = (localH - dY) * 0.5f;
+                float segY = (dY + segLen) * 0.5f;
+                SetCollider(colliders[idx++], new Vector2(-halfW, -segY), new Vector2(tX, segLen));
+                SetCollider(colliders[idx++], new Vector2(-halfW, +segY), new Vector2(tX, segLen));
+            }
+
+            // --- RIGHT WALL (x = +halfW) ---
+            if (!openRight)
+            {
+                SetCollider(colliders[idx++], new Vector2(+halfW, 0f), new Vector2(tX, localH));
+            }
+            else
+            {
+                float segLen = (localH - dY) * 0.5f;
+                float segY = (dY + segLen) * 0.5f;
+                SetCollider(colliders[idx++], new Vector2(+halfW, -segY), new Vector2(tX, segLen));
+                SetCollider(colliders[idx++], new Vector2(+halfW, +segY), new Vector2(tX, segLen));
+            }
+        }
+
+        private void SetCollider(BoxCollider2D col, Vector2 offset, Vector2 size)
+        {
+            if (col == null) return;
             col.offset = offset;
             col.size = size;
         }
@@ -274,14 +328,11 @@ namespace DigiPurity.World
             Vector2 newSize = Vector2.zero;
             bool newOpenL = false, newOpenR = false, newOpenT = false, newOpenB = false;
 
-            float sx = Mathf.Abs(transform.localScale.x) > 0.001f ? Mathf.Abs(transform.localScale.x) : 1f;
-            float sy = Mathf.Abs(transform.localScale.y) > 0.001f ? Mathf.Abs(transform.localScale.y) : 1f;
-
             switch (dir)
             {
                 case Direction.Right:
                     openRight = true;
-                    spawnPos += new Vector3((halfW * sx) + (hallwayLength * 0.5f) - (t * 0.5f), 0f, 0f);
+                    spawnPos += new Vector3(halfW + (hallwayLength * 0.5f) - (t * 0.5f), 0f, 0f);
                     newSize = new Vector2(hallwayLength, hallwayBreadth);
                     newOpenL = true;
                     newOpenR = false;
@@ -289,7 +340,7 @@ namespace DigiPurity.World
 
                 case Direction.Left:
                     openLeft = true;
-                    spawnPos -= new Vector3((halfW * sx) + (hallwayLength * 0.5f) - (t * 0.5f), 0f, 0f);
+                    spawnPos -= new Vector3(halfW + (hallwayLength * 0.5f) - (t * 0.5f), 0f, 0f);
                     newSize = new Vector2(hallwayLength, hallwayBreadth);
                     newOpenR = true;
                     newOpenL = false;
@@ -297,7 +348,7 @@ namespace DigiPurity.World
 
                 case Direction.Top:
                     openTop = true;
-                    spawnPos += new Vector3(0f, (halfH * sy) + (hallwayLength * 0.5f) - (t * 0.5f), 0f);
+                    spawnPos += new Vector3(0f, halfH + (hallwayLength * 0.5f) - (t * 0.5f), 0f);
                     newSize = new Vector2(hallwayBreadth, hallwayLength);
                     newOpenB = true;
                     newOpenT = false;
@@ -305,7 +356,7 @@ namespace DigiPurity.World
 
                 case Direction.Bottom:
                     openBottom = true;
-                    spawnPos -= new Vector3(0f, (halfH * sy) + (hallwayLength * 0.5f) - (t * 0.5f), 0f);
+                    spawnPos -= new Vector3(0f, halfH + (hallwayLength * 0.5f) - (t * 0.5f), 0f);
                     newSize = new Vector2(hallwayBreadth, hallwayLength);
                     newOpenT = true;
                     newOpenB = false;
@@ -327,7 +378,10 @@ namespace DigiPurity.World
             hallwayComp.OpenRight = newOpenR;
             hallwayComp.OpenTop = newOpenT;
             hallwayComp.OpenBottom = newOpenB;
-            hallwayComp.LoadDefaultFloorSpriteIfNeeded();
+            hallwayComp.TileFloor = true; // Hallways use seamless tiled grid
+#if UNITY_EDITOR
+            hallwayComp.FloorSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Environment/Floor_Tile.png");
+#endif
             hallwayComp.RebuildRoom();
 
 #if UNITY_EDITOR

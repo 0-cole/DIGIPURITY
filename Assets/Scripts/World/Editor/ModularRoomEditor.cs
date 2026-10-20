@@ -32,12 +32,14 @@ namespace DigiPurity.World
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("🎨 Visuals & Rendering", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(serializedObject.FindProperty("floorSprite"));
+            EditorGUILayout.PropertyField(serializedObject.FindProperty("tileFloor"), new GUIContent("Tile Floor Graphic"));
             EditorGUILayout.PropertyField(serializedObject.FindProperty("sortingOrder"));
 
             serializedObject.ApplyModifiedProperties();
 
             EditorGUILayout.Space(10);
-            EditorGUILayout.BeginHorizontal();
+
+            // Spacious Full-Width Action Buttons (Never Truncated!)
             GUI.backgroundColor = new Color(0.2f, 0.7f, 1f);
             if (GUILayout.Button("🔄 Rebuild Room & Colliders", GUILayout.Height(30)))
             {
@@ -46,41 +48,36 @@ namespace DigiPurity.World
                 EditorUtility.SetDirty(room);
             }
 
+            EditorGUILayout.Space(3);
             GUI.backgroundColor = new Color(1f, 0.75f, 0.2f);
-            if (GUILayout.Button("🎯 Fit to Current Sprite", GUILayout.Height(30)))
+            if (GUILayout.Button("🎯 Fit Room to Current Visual Sprite", GUILayout.Height(28)))
             {
                 Undo.RecordObject(room, "Fit Room to Sprite");
                 room.FitToSpriteBounds();
                 EditorUtility.SetDirty(room);
             }
-            EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.Space(10);
+            EditorGUILayout.Space(12);
             EditorGUILayout.LabelField("➕ Instant Connected Hallway Generator", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox("Click any button below to instantly carve a doorway in this room and attach a seamless, aligned hallway with matching floor tiles and colliders.", MessageType.Info);
+            EditorGUILayout.HelpBox("Click to carve a doorway and attach a seamless connected hallway.", MessageType.Info);
 
-            EditorGUILayout.BeginHorizontal();
-            GUI.backgroundColor = new Color(0.3f, 0.9f, 0.4f);
-            if (GUILayout.Button("➡️ Attach Hallway (Right)", GUILayout.Height(28)))
+            GUI.backgroundColor = new Color(0.3f, 0.85f, 0.45f);
+            if (GUILayout.Button("➡️ Attach Hallway to Right", GUILayout.Height(26)))
             {
                 room.AttachRight();
             }
-            if (GUILayout.Button("⬅️ Attach Hallway (Left)", GUILayout.Height(28)))
+            if (GUILayout.Button("⬅️ Attach Hallway to Left", GUILayout.Height(26)))
             {
                 room.AttachLeft();
             }
-            EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("⬆️ Attach Hallway (Top)", GUILayout.Height(28)))
+            if (GUILayout.Button("⬆️ Attach Hallway to Top", GUILayout.Height(26)))
             {
                 room.AttachTop();
             }
-            if (GUILayout.Button("⬇️ Attach Hallway (Bottom)", GUILayout.Height(28)))
+            if (GUILayout.Button("⬇️ Attach Hallway to Bottom", GUILayout.Height(26)))
             {
                 room.AttachBottom();
             }
-            EditorGUILayout.EndHorizontal();
 
             GUI.backgroundColor = Color.white;
         }
@@ -90,15 +87,18 @@ namespace DigiPurity.World
             ModularRoom room = (ModularRoom)target;
             if (room == null) return;
 
-            // Interactive Box Handles directly in the Scene view
+            // When Unity's native Rect Tool ('T' key) is active, let it handle dragging without interference
+            if (Tools.current == Tool.Rect) return;
+
+            // Otherwise, provide visual bounding handles when in View/Move mode
             Matrix4x4 originalMatrix = Handles.matrix;
             Handles.matrix = room.transform.localToWorldMatrix;
 
             _boundsHandle.center = Vector3.zero;
             _boundsHandle.size = new Vector3(room.RoomSize.x, room.RoomSize.y, 0f);
             _boundsHandle.axes = PrimitiveBoundsHandle.Axes.X | PrimitiveBoundsHandle.Axes.Y;
-            _boundsHandle.wireframeColor = new Color(0.3f, 0.9f, 1f, 0.75f);
-            _boundsHandle.handleColor = new Color(1f, 0.85f, 0.2f, 1f);
+            _boundsHandle.wireframeColor = new Color(0.3f, 0.9f, 1f, 0.6f);
+            _boundsHandle.handleColor = new Color(1f, 0.85f, 0.2f, 0.9f);
 
             EditorGUI.BeginChangeCheck();
             _boundsHandle.DrawHandle();
@@ -126,6 +126,7 @@ namespace DigiPurity.World
             mr.RoomSize = new Vector2(24f, 4.5f);
             mr.OpenLeft = true;
             mr.OpenRight = false;
+            mr.TileFloor = true;
             mr.RebuildRoom();
 
             GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
@@ -142,6 +143,7 @@ namespace DigiPurity.World
             mr.RoomSize = new Vector2(4.5f, 24f);
             mr.OpenBottom = true;
             mr.OpenTop = false;
+            mr.TileFloor = true;
             mr.RebuildRoom();
 
             GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
@@ -157,6 +159,7 @@ namespace DigiPurity.World
             var mr = go.AddComponent<ModularRoom>();
             mr.RoomSize = new Vector2(18f, 14f);
             mr.OpenRight = true;
+            mr.TileFloor = true;
             mr.RebuildRoom();
 
             GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
