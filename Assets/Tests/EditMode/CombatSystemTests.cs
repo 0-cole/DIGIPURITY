@@ -52,6 +52,19 @@ namespace DigiPurity.Tests
         }
 
         [Test]
+        public void Undertale_SoulMovement_DiagonalMovesAtOnePointFiveSpeed()
+        {
+            var logic = new SoulMovementLogic(speed: 4f, diagonalMult: 1.5f);
+            Vector2 origin = Vector2.zero;
+            Vector2 dir = new Vector2(1f, 1f);
+
+            Vector2 diagPos = logic.CalculateNextPosition(origin, dir, slowHeld: false, deltaTime: 1f);
+
+            float distance = Vector2.Distance(origin, diagPos);
+            Assert.AreEqual(6f, distance, 0.001f, "Diagonal soul movement must be exactly 1.5x regular speed");
+        }
+
+        [Test]
         public void CombatStateMachine_SlotsGrowWithTurns()
         {
             var sm = new CombatStateMachine();

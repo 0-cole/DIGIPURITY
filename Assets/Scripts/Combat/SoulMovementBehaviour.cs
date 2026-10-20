@@ -5,6 +5,7 @@ namespace DigiPurity.Combat
     public class SoulMovementBehaviour : MonoBehaviour
     {
         [SerializeField] private float baseSpeed = 4f;
+        [SerializeField] private float diagonalMultiplier = 1.5f;
         [SerializeField] private Vector2 boundsMin = new Vector2(-5f, -5f);
         [SerializeField] private Vector2 boundsMax = new Vector2(5f, 5f);
         [SerializeField] private float borderMargin = 0.5f;
@@ -13,10 +14,11 @@ namespace DigiPurity.Combat
         private int _invulnerabilityFrames;
 
         public int InvulnerabilityFrames => _invulnerabilityFrames;
+        public float DiagonalMultiplier => diagonalMultiplier;
 
         private void Awake()
         {
-            _logic = new SoulMovementLogic(baseSpeed, boundsMin, boundsMax, borderMargin);
+            _logic = new SoulMovementLogic(baseSpeed, boundsMin, boundsMax, borderMargin, diagonalMultiplier);
         }
 
         private void Update()
