@@ -70,6 +70,21 @@ namespace DigiPurity.World.Editor
             Debug.Log("[DIGIPURITY] WalkableSquare has been completely rebuilt at 1:1 scale with solid blue wall colliders and RoomBounds!");
         }
 
+        [MenuItem("GameObject/DIGIPURITY/Room Floor (Sprite + RoomBounds)", false, 2)]
+        public static void CreateRoomFloor(MenuCommand menuCommand)
+        {
+            GameObject go = new GameObject("Room_Floor");
+            go.transform.position = Vector3.zero;
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sortingOrder = -10;
+            var rb = go.AddComponent<RoomBounds>();
+            rb.Source = RoomBounds.BoundsSource.Auto;
+
+            GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
+            Undo.RegisterCreatedObjectUndo(go, "Create Room Floor");
+            Selection.activeObject = go;
+        }
+
         [MenuItem("GameObject/DIGIPURITY/Solid Wall (Undertale obj_solid)", false, 10)]
         public static void CreateSolidWall(MenuCommand menuCommand)
         {
@@ -77,6 +92,8 @@ namespace DigiPurity.World.Editor
             go.transform.position = Vector3.zero;
             var col = go.AddComponent<BoxCollider2D>();
             col.size = new Vector2(2f, 2f);
+            col.isTrigger = false;
+            go.AddComponent<InvisibleWall>();
 
             GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
             Undo.RegisterCreatedObjectUndo(go, "Create Solid Wall");

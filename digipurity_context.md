@@ -228,7 +228,9 @@ At the conclusion of every battle, the player faces a pivotal choice:
 | [`Assets/Scripts/World/RoomBounds.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/RoomBounds.cs) | Room perimeter tracking supporting Colliders, Renderers, and composite child walls. |
 | [`Assets/Scripts/World/AreaDoor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/AreaDoor.cs) | Two-way door transitions, arrival offset/facing, cooldowns, and Deltarune 1-in-50 Secret Egg Room divert/return. |
 | [`Assets/Scripts/World/ScreenFader.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/ScreenFader.cs) | Zero-setup full-screen black transition fader with smooth alpha interpolation. |
-| [`Assets/Scripts/World/Editor/WorldEditorTools.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/WorldEditorTools.cs) | 1-click Unity menu items: `Rebuild Clean WalkableSquare`, `Solid Wall`, `Room Trigger`, `Area Door`, `Egg Door`. |
+| [`Assets/Scripts/World/InvisibleWall.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/InvisibleWall.cs) | Toby Fox `obj_solid` invisible wall component. Displays clear semi-transparent blue fill, solid outline, and 'X' cross in Scene view; auto-provisions non-trigger BoxCollider2D; invisible in Play mode. |
+| [`Assets/Scripts/World/Editor/InvisibleWallEditor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/InvisibleWallEditor.cs) | Custom Inspector with grid snap (2x2 units), solid non-trigger validation, and color customization. |
+| [`Assets/Scripts/World/Editor/WorldEditorTools.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/WorldEditorTools.cs) | 1-click Unity menu items: `Rebuild Clean WalkableSquare`, `Room Floor (Sprite + RoomBounds)`, `Solid Wall (Undertale obj_solid)`, `Room Trigger`, `Area Door`, `Egg Door`. |
 | [`Assets/Scripts/Combat/CoinClashResolver.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/CoinClashResolver.cs) | Limbus coin flip resolution, heads probability from Charge, clash loops. |
 | [`Assets/Scripts/Combat/CombatDeckManager.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/CombatDeckManager.cs) | Deck drawing, Skill 1/2/3/4 generation, Defense swap. |
 | [`Assets/Scripts/Combat/CombatSkillSlot.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/CombatSkillSlot.cs) | Slot state, click-to-swap defense behavior. |
@@ -243,6 +245,7 @@ At the conclusion of every battle, the player faces a pivotal choice:
 | [`Assets/Scripts/Core/TutorialManager.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Core/TutorialManager.cs) | 5-phase introductory onboarding state machine. |
 
 ### 6.2 EditMode Test Suites (`Assets/Tests/EditMode/`)
+- [`InvisibleWallTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/InvisibleWallTests.cs) (Auto-provisioning BoxCollider2D, non-trigger enforcement, 2x2 grid snapping)
 - [`AreaDoorTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/AreaDoorTests.cs) (Door matching, spawn offsets, Egg Room diversion/return, input locking)
 - [`RoomCameraTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/RoomCameraTests.cs) (4:3 pillarbox math, stationary small rooms, hallway tracking, torso center)
 - [`CombatSystemTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/CombatSystemTests.cs)
@@ -268,6 +271,7 @@ At the conclusion of every battle, the player faces a pivotal choice:
 | **2026-10-20** | **WalkableSquare & Camera Calibration**: Reset `WalkableSquare` to 1:1 scale ($16 \times 16\text{ units}$), attached 4 solid border colliders, and calibrated camera `orthographicSize = 6.0f` so the room fills the 4:3 screen horizontally with zero black void. Fixed Unity 6 deprecation warnings. |
 | **2026-10-21** | **Learned Workflow & Master Context Consolidation**: Merged all isolated context notes into `digipurity_context.md`. Cleaned redundant files. Added comprehensive narrative premise (2030, brother's fatal accident, consciousness transfer), Undertale/Deltarune satirical/tense tone balance, 5-zone breakdown (`abandon.war3`, `Humor`, `Art`, `Industrial`, `Humanity`), Triple T boss, and MCP/AM final boss. |
 | **2026-10-21** | **Boss Invariant Correction**: Clarified Zone 1 boss **Triple T (Tung Tung Tung Sahur)** as a direct parody of **Flowery** (the *Deltarune* character and "Flower Man" boss theme meme), **NOT** Undertale's Flowey. |
+| **2026-10-21** | **InvisibleWall Component & Level Design Tooling**: Created [`InvisibleWall.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/InvisibleWall.cs), [`InvisibleWallEditor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/InvisibleWallEditor.cs), and `Room Floor` creator menu item. Provides clear visual representation in Scene view (semi-transparent blue, solid outline, Undertale `obj_solid` cross) with non-trigger auto-validation. |
 
 ---
 
