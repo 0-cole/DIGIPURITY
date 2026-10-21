@@ -230,6 +230,7 @@ At the conclusion of every battle, the player faces a pivotal choice:
 | [`Assets/Scripts/World/ScreenFader.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/ScreenFader.cs) | Zero-setup full-screen black transition fader with smooth alpha interpolation. |
 | [`Assets/Scripts/World/InvisibleWall.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/InvisibleWall.cs) | Toby Fox `obj_solid` invisible wall component. Displays clear semi-transparent blue fill, solid outline, and 'X' cross in Scene view; auto-provisions non-trigger BoxCollider2D; invisible in Play mode. |
 | [`Assets/Scripts/World/Editor/InvisibleWallEditor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/InvisibleWallEditor.cs) | Custom Inspector with grid snap (2x2 units), solid non-trigger validation, and color customization. |
+| [`Assets/Scripts/World/Editor/RoomBoundsEditor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/RoomBoundsEditor.cs) | Room connection inspector displaying connected overlapping rooms and a 1-click button to strip floor-level colliders for open doorways. |
 | [`Assets/Scripts/World/Editor/WorldEditorTools.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/WorldEditorTools.cs) | 1-click Unity menu items: `Rebuild Clean WalkableSquare`, `Room Floor (Sprite + RoomBounds)`, `Solid Wall (Undertale obj_solid)`, `Room Trigger`, `Area Door`, `Egg Door`. |
 | [`Assets/Scripts/Combat/CoinClashResolver.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/CoinClashResolver.cs) | Limbus coin flip resolution, heads probability from Charge, clash loops. |
 | [`Assets/Scripts/Combat/CombatDeckManager.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/CombatDeckManager.cs) | Deck drawing, Skill 1/2/3/4 generation, Defense swap. |
@@ -244,7 +245,12 @@ At the conclusion of every battle, the player faces a pivotal choice:
 | [`Assets/Scripts/Core/SaveSystem.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Core/SaveSystem.cs) | JSON save file management (`digipurity_save.json`). |
 | [`Assets/Scripts/Core/TutorialManager.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Core/TutorialManager.cs) | 5-phase introductory onboarding state machine. |
 
-### 6.2 EditMode Test Suites (`Assets/Tests/EditMode/`)
+### 6.2 Audio & Soundtrack Assets (`Assets/Audio/`)
+| Path | Description |
+| :--- | :--- |
+| [`Assets/Audio/Area0.5_Battle_Theme.json`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Audio/Area0.5_Battle_Theme.json) | Complete 24-bar BeepBox battle theme for Zone 0.5 (`abandon.war3`). 168 BPM breakcore battle track with 4-channel arrangement (FM Lead, Cyber Reese Bass, Shimmering Harmonics, Retro Noise Drumkit), authentic 7-variation Amen Break chops, and the Deltarune Freedom Motif (Parts A & B). Exported also to user's Downloads. |
+
+### 6.3 EditMode Test Suites (`Assets/Tests/EditMode/`)
 - [`InvisibleWallTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/InvisibleWallTests.cs) (Auto-provisioning BoxCollider2D, non-trigger enforcement, 2x2 grid snapping)
 - [`AreaDoorTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/AreaDoorTests.cs) (Door matching, spawn offsets, Egg Room diversion/return, input locking)
 - [`RoomCameraTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/RoomCameraTests.cs) (4:3 pillarbox math, stationary small rooms, hallway tracking, torso center)
@@ -272,6 +278,8 @@ At the conclusion of every battle, the player faces a pivotal choice:
 | **2026-10-21** | **Learned Workflow & Master Context Consolidation**: Merged all isolated context notes into `digipurity_context.md`. Cleaned redundant files. Added comprehensive narrative premise (2030, brother's fatal accident, consciousness transfer), Undertale/Deltarune satirical/tense tone balance, 5-zone breakdown (`abandon.war3`, `Humor`, `Art`, `Industrial`, `Humanity`), Triple T boss, and MCP/AM final boss. |
 | **2026-10-21** | **Boss Invariant Correction**: Clarified Zone 1 boss **Triple T (Tung Tung Tung Sahur)** as a direct parody of **Flowery** (the *Deltarune* character and "Flower Man" boss theme meme), **NOT** Undertale's Flowey. |
 | **2026-10-21** | **InvisibleWall Component & Level Design Tooling**: Created [`InvisibleWall.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/InvisibleWall.cs), [`InvisibleWallEditor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/InvisibleWallEditor.cs), and `Room Floor` creator menu item. Provides clear visual representation in Scene view (semi-transparent blue, solid outline, Undertale `obj_solid` cross) with non-trigger auto-validation. |
+| **2026-10-21** | **Zone 0.5 Battle Theme Composed (Amen Break & Freedom Motif)**: Engineered full-length 24-bar breakcore battle theme JSON (`Area0.5_Battle_Theme.json` in `Assets/Audio/` and user's `Downloads/`). Implemented 168 BPM 4-channel structure: solo Amen Break intro (Bar 0), sub-bass/arp swell (Bar 1), main melody drop on Bar 2 (3rd frame), escalating verses, authentic Deltarune Freedom Motif (Parts A & B), chopped glitch breakdown, and high-octave C6 grand climax with seamless infinite battle looping. |
+| **2026-10-21** | **Multifaceted Room & Connector Diagnostics**: Created [`RoomBoundsEditor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/RoomBoundsEditor.cs) custom Inspector. Automatically detects connected overlapping rooms/hallways, provides smooth camera handoff diagnostics, and adds a 1-click button to strip floor-level BoxCollider2D components so doorways remain open. |
 
 ---
 
@@ -279,6 +287,11 @@ At the conclusion of every battle, the player faces a pivotal choice:
 
 1. **Test Overworld WalkableSquare & Area Doors in Unity**:
    - In Unity, verify Owen bumps solidly into all 4 blue borders in `SampleScene.unity`.
+   - Walk through the doorway to confirm smooth black screen fade, player input freeze/unfreeze, and room arrival.
+   - Test the Deltarune Egg Room divert chance (or temporarily set `secretChancePercent = 100f`).
+2. **Listen to / Integrate Area 0.5 Battle Theme**:
+   - Import [`Area0.5_Battle_Theme_AmenBreak_FreedomMotif.json`](file:///C:/Users/cdbla/Downloads/Area0.5_Battle_Theme_AmenBreak_FreedomMotif.json) into [BeepBox](https://www.beepbox.co) or JummBox/UltraBox (`File -> Import JSON`) to audition the breakcore layers and leitmotif.
+   - Export `.wav` or `.ogg` for playback in Unity battle scene transition.
    - Place a second room or hallway in `SampleScene` and test an `AreaDoor` transition with the black fade.
 2. **Hook Battle Scene & Golfer Encounter**:
    - Wire up a trigger or encounter check that transitions Owen into combat with `Golfer_256.png`.
