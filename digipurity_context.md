@@ -64,9 +64,9 @@ At the conclusion of every battle, the player faces a pivotal choice:
   3. **The Content Factory Subzone**: A dark, basement-like manufacturing floor where newly trained AI churn out endless conveyor belts of low-effort shorts.
   4. **The Grand Playpen Arena**: Massive corrupted play area where the zone boss resides.
 - **Zone 1 Boss**: **Triple T (Tung Tung Tung Sahur)**:
-  - A literal brainrot meme entity acting as regional overseer.
-  - Parody of Flowey / Flower Man; chaotic, surreal, and erratic in battle.
-- **Soundtrack**: 3 environment tracks composed by Corben (Playpen, Monolith Plains, Content Factory) + Cole's chaotic Deltarune-style Triple T boss track.
+  - A viral AI-brainrot meme entity acting as regional overseer.
+  - **Parody of Flowery** (the *Deltarune* character and "Flower Man" boss theme meme — **NOT** Undertale's Flowey); chaotic, surreal, uncanny, and erratic in combat.
+- **Soundtrack**: 3 environment tracks composed by Corben (Playpen, Monolith Plains, Content Factory) + Cole's chaotic Deltarune-style Triple T boss track (parodying the manic energy of "Flower Man").
 
 ### 2.3 Zone 2: `Art` (The Warped Museum)
 - **Thematic Focus**: Critiques generative AI art, theft of artists' work, and algorithmic visual slop.
@@ -267,6 +267,7 @@ At the conclusion of every battle, the player faces a pivotal choice:
 | **2026-10-20** | **Deltarune Doors & Secret Egg Room Implemented**: Researched Deltarune bytecode (`room_man`). Created [`AreaDoor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/AreaDoor.cs) and [`ScreenFader.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/ScreenFader.cs) with 2-way door IDs, screen fading, player input locking, and 1-in-50 (2%) Secret Egg Room diversion and return. |
 | **2026-10-20** | **WalkableSquare & Camera Calibration**: Reset `WalkableSquare` to 1:1 scale ($16 \times 16\text{ units}$), attached 4 solid border colliders, and calibrated camera `orthographicSize = 6.0f` so the room fills the 4:3 screen horizontally with zero black void. Fixed Unity 6 deprecation warnings. |
 | **2026-10-21** | **Learned Workflow & Master Context Consolidation**: Merged all isolated context notes into `digipurity_context.md`. Cleaned redundant files. Added comprehensive narrative premise (2030, brother's fatal accident, consciousness transfer), Undertale/Deltarune satirical/tense tone balance, 5-zone breakdown (`abandon.war3`, `Humor`, `Art`, `Industrial`, `Humanity`), Triple T boss, and MCP/AM final boss. |
+| **2026-10-21** | **Boss Invariant Correction**: Clarified Zone 1 boss **Triple T (Tung Tung Tung Sahur)** as a direct parody of **Flowery** (the *Deltarune* character and "Flower Man" boss theme meme), **NOT** Undertale's Flowey. |
 
 ---
 
