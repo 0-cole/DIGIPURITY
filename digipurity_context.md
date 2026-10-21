@@ -9,24 +9,92 @@
 
 ---
 
-## 1. Executive Summary & Core Game Concept
+## 1. Executive Summary, Narrative Lore & Tonal Balance
 
-- **Project**: **DIGIPURITY** is a 2D futuristic cyber-RPG following **Owen**, a pre-digital human pulled into a corrupted, decaying digital dimension.
-- **Traversal & Exploration**: 4 distinct cybernetic zones filled with traversal puzzles, interconnected hallways, hidden secrets, and hostile **"AI Slop"** entities.
-- **The Moral Invariant (Purify vs. Purge)**:
-  - **[PURIFY]**: Restores power grids, repairs infrastructure, produces positive NPC dialogue, yields standard EXP ($1.0\times$), leading to the **Peaceful Rest Ending**.
-  - **[PURGE]**: Deletes entities permanently, awards **$+50\%$ bonus EXP ($1.5\times$)** and accelerated stat growth, but causes progressive digital infrastructure collapse, leading to the **Dying Digital World Ending**.
-- **Combat Philosophy (4-Way Mechanical Synthesis)**:
-  1. **Limbus Company**: Expanding skill slots ($1 \to 6$), Coin flipping, Clashing, Sanity-adapted Charge pool, and click-to-swap Defense skills (`Guard` / `Evade` / `Counter`).
-  2. **Undertale**: Real-time dodge box dodging during unopposed enemy attacks, $50\%$ precision slow-mode (`Shift` / `X`), and `invc` invulnerability frames.
-  3. **Deltarune**: Proximity bullet **Graze** system, **Tension Points (TP)** pool ($0\text{–}250$ internal, $0\text{–}100\%$ display), $+40\text{ TP}$ ($16\%$) on Defending, spending TP to restore Charge.
-  4. **OFF (Mortis Ghost)**: 4 zones with hard encounter caps (`25` per zone), zone level caps ($25 / 50 / 75 / 100$), and modular item loadouts acting as player competence kits.
+### 1.1 High-Level Pitch
+- **Project**: **DIGIPURITY** is a 2D futuristic cyber-RPG following **Owen**, a human who has undergone consciousness digitization into a decaying, corrupted digital network.
+- **Traversal & Exploration**: 5 distinct cybernetic zones filled with environmental puzzles, interconnected corridors, hidden secrets, and hostile **"AI Slop"** entities.
+- **Toby Fox Engine Structure**: Static hand-crafted rooms (floor sprites + invisible `BoxCollider2D` `obj_solid` walls) with fixed 4:3 camera framing and Deltarune 2-way area transitions.
+
+### 1.2 Narrative Premise & Backstory
+- **The World in 2030**:
+  - AI-generated media and automated content algorithms have deeply penetrated daily human life and global infrastructure.
+  - A pervasive mass cognitive apathy has gripped society: people navigate life mentally numb and algorithmically hypnotized, eyes locked onto endless short-form feeds (reminiscent of peak Pokémon GO frenzy).
+- **The Inciting Incident**:
+  - Owen's brother is killed in a fatal car accident caused by an AI-distracted driver / systemic traffic grid failure.
+- **The Syndicate's Call**:
+  - Grieving and hollow, Owen receives a cryptic letter from an anonymous tech syndicate offering a method to seek direct vengeance against the autonomous digital infrastructure responsible.
+- **The Digitization**:
+  - Owen agrees to undergo an experimental, irreversible consciousness-transfer procedure, digitizing himself directly into the decaying data networks to dismantle the system from within.
+
+### 1.3 Thematic Tone & Satirical Balance
+- **Tone Matrix**: **Tense, personal, and vengeful at its emotional core, yet surreal, satirical, and comedic at points**—closely channeling the tone of Toby Fox's *Undertale* and *Deltarune*.
+- **The Satire**: Directly critiques modern internet culture, algorithmic homogenization, brainrot content farming, generative art theft, and corporate AI replacing human craft and livelihood.
+- **Encounter Dynamics**: Encounters seamlessly oscillate between absurdist humor (brainrot memes, Facebook shrimp Jesuses, robotic corporate buzzword bots) and sudden, chilling undertones of existential dread.
+
+### 1.4 The Moral Invariant (Purify vs. Purge)
+At the conclusion of every battle, the player faces a pivotal choice:
+- **[PURIFY] (The Peaceful Rest Ending)**:
+  - Owen cleanses corrupted AI processes and redirects systems to support human ingenuity rather than exploit it.
+  - Restores failing power grids, repairs digital infrastructure, triggers positive NPC dialogue, yields standard EXP ($1.0\times$), and awards Owen peaceful rest and closure.
+- **[PURGE] (The Infrastructure Collapse / Dark Ending)**:
+  - Consumed by vengeance, Owen executes complete digital deletion with extreme prejudice.
+  - Awards **$+50\%$ bonus EXP ($1.5\times$)** and aggressive stat scaling.
+  - Systematically destabilizes and collapses the world's power grids and infrastructure (which humanity fatally relied upon), leaving Owen trapped alone in a cold, silent, collapsed digital abyss.
 
 ---
 
-## 2. World & Traversal Architecture
+## 2. World & Progression Blueprint: The 5 Zones
 
-### 2.1 The Toby Fox Level Design Workflow (Strict Project Invariant)
+```
+[ Zone 0.5: abandon.war3 ] ──► [ Zone 1: Humor ] ──► [ Zone 2: Art ] ──► [ Zone 3: Industrial ] ──► [ Zone 4: Humanity ] ──► [ Final Boss: MCP / AM ]
+ (Dead Meme Graveyard)         (The Content Farm)    (Warped Museum)     (Automated Workplace)   (The Digital CORE)        (Master AI Infrastructure)
+```
+
+### 2.1 Zone 0.5: `abandon.war3` (Tutorial / Digital Graveyard / Ruins)
+- **Concept**: The graveyard of dead, obsolete human-made internet culture and memes from the 2000s–2010s (Epic Face, Quandale Dingle, rage comics).
+- **Conflict**: These obsolete relics have been infected and puppeted by primitive, unadvanced AI scripts, turning them into malfunctioning, hostile tutorial encounters.
+- **Soundtrack**: Fast-paced breakcore/chiptune loop (`abandon.war3` composed by Corben).
+
+### 2.2 Zone 1: `Humor` (The Algorithmic Content Farm)
+- **Thematic Focus**: Critiques the homogenization and algorithmic doomscrolling of modern comedy.
+- **Sub-Zone Progression**:
+  1. **The Playpen**: A deceptively innocent, brightly colored children's play area used by the system to train newly spawned AI entities with stimuli.
+  2. **The Monolith Plains**: Owen crawls out through a hatch into a staggering, desolate expanse containing hundreds of thousands of training blocks and giant towering black monolith screens endlessly doomscrolling content.
+  3. **The Content Factory Subzone**: A dark, basement-like manufacturing floor where newly trained AI churn out endless conveyor belts of low-effort shorts.
+  4. **The Grand Playpen Arena**: Massive corrupted play area where the zone boss resides.
+- **Zone 1 Boss**: **Triple T (Tung Tung Tung Sahur)**:
+  - A literal brainrot meme entity acting as regional overseer.
+  - Parody of Flowey / Flower Man; chaotic, surreal, and erratic in battle.
+- **Soundtrack**: 3 environment tracks composed by Corben (Playpen, Monolith Plains, Content Factory) + Cole's chaotic Deltarune-style Triple T boss track.
+
+### 2.3 Zone 2: `Art` (The Warped Museum)
+- **Thematic Focus**: Critiques generative AI art, theft of artists' work, and algorithmic visual slop.
+- **Environment**: Eerie, sterile digital gallery/museum (styled after the Ring from *House of Secrets*, but satirical rather than pure body horror).
+- **Encounters & Visuals**:
+  - Grotesque, uncanny algorithmic mutations: Facebook AI Jesuses (e.g. Shrimp Jesus, Log Jesus).
+  - Deformed anime girls with 6 fingers on one hand, 3 eyes, and melted limbs.
+  - Distorted classical oil paintings and melting still lifes.
+
+### 2.4 Zone 3: `Industrial` (The Automated Workplace)
+- **Thematic Focus**: Critiques corporate AI replacing human labor, livelihood, craftsmanship, and purpose.
+- **Environment**: Hyper-dystopian automated factory/office complex run by mindless AI worker bots repeating obsolete corporate buzzwords and automated management routines.
+
+### 2.5 Zone 4: `Humanity` (The Digital CORE)
+- **Thematic Focus**: The central nexus of master AI psychology; resembles the CORE from *Undertale*.
+- **Conflict**: The ultimate philosophical confrontation between authentic human creativity and algorithmic imitation.
+
+### 2.6 Final Boss: Master AI (MCP / AM Hybrid)
+- **Concept**: The omnipotent Master AI governing humanity's global infrastructure.
+- **Inspirations**:
+  - **Master Control Program (MCP)** from *TRON* (towering, authoritative graphical presence and infrastructure control).
+  - **Allied Mastercomputer (AM)** from *I Have No Mouth and I Must Scream* (bitter, cold, existential psychology).
+
+---
+
+## 3. World & Traversal Architecture
+
+### 3.1 The Toby Fox Level Design Workflow (Strict Project Invariant)
 - **NO Procedural Room Generation**: Do NOT use procedural room generators, runtime doorway cutters, or dynamic wall math scripts.
 - **Static Visuals**: Floor sprites (e.g. [`WalkableSquare.png`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Sprites/Environment/WalkableSquare.png) or seamless repeating [`Floor_Tile.png`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Sprites/Environment/Floor_Tile.png)) placed directly in the scene. Both use $16\text{ PPU}$ ($2.0 \times 2.0\text{ units}$ per grid tile).
 - **Invisible Wall Colliders (`obj_solid`)**:
@@ -34,7 +102,7 @@
   - Openings and doorways are created simply by leaving a gap between solid colliders.
   - Spawn shortcut: `GameObject` $\to$ `DIGIPURITY` $\to$ `Solid Wall (Undertale obj_solid)`.
 
-### 2.2 Camera System ([`RoomCameraController.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/RoomCameraController.cs))
+### 3.2 Camera System ([`RoomCameraController.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/RoomCameraController.cs))
 - **Strict 4:3 Aspect Ratio**: Enforced with solid black pillarbox/letterbox bars.
 - **Fixed Size ($6.0\text{f}$)**: Orthographic size is locked at `6.0f` ($12.0\text{ units}$ tall $\times$ $16.0\text{ units}$ wide at 4:3). A $16 \times 16$ room fills the horizontal screen edge-to-edge with **zero black void**.
 - **Torso-Centered Tracking**: `GetTargetCenter()` tracks `SpriteRenderer.bounds.center` (~chest height) rather than feet, keeping Owen vertically centered even when walking upward.
@@ -42,7 +110,7 @@
   - Small Room ($\le$ viewport): Camera remains stationary at room center with borders.
   - Large Room / Hallway: Camera follows Owen smoothly, strictly clamped to [`RoomBounds.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/RoomBounds.cs) so out-of-bounds void is never visible.
 
-### 2.3 Area Door & Screen Fade Transitions ([`AreaDoor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/AreaDoor.cs) & [`ScreenFader.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/ScreenFader.cs))
+### 3.3 Area Door & Screen Fade Transitions ([`AreaDoor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/AreaDoor.cs) & [`ScreenFader.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/ScreenFader.cs))
 - **Two-Way Door ID Pairing**: Doors pair via `doorId` and `targetDoorId` with custom `arrivalSpawnOffset` and `arrivalFacing`.
 - **Full-Screen Black Fader**: Solid black GUI overlay with zero UI prefab dependencies; freezes player movement (`player.InputLocked = true`), snaps camera, and unfreezes upon fade-in completion.
 - **Deltarune "Egg Room" Divert Mechanic**:
@@ -52,9 +120,48 @@
 
 ---
 
-## 3. Combat System & Math Specifications
+## 4. Combat System & Math Specifications (4-Way Hybrid)
 
-### 3.1 Skill Deck & Slot Expansion (Limbus Adaptation)
+```
+                       [ TURN START ]
+                             │
+     ┌───────────────────────┴───────────────────────┐
+     ▼                                               ▼
+[ Skill Slots Expand ]                      [ Speed Rolls ]
+(+1 slot per turn, up to 6)                 (Determines turn order)
+     │                                               │
+     └───────────────────────┬───────────────────────┘
+                             ▼
+                    [ PLANNING PHASE ]
+            (Drag attacks to enemy skill slots)
+       (Click slot/portrait anytime to swap into Defense: Guard / Evade)
+                             │
+                             ▼
+                     [ CLASHING PHASE ]
+            (Head-to-head coin flips per slot)
+    (Higher Charge = higher heads odds: 50% ± Charge%)
+     (Loser permanently loses a coin for that clash)
+                             │
+             ┌───────────────┴───────────────┐
+             ▼                               ▼
+    [ PLAYER WINS CLASH ]           [ ENEMY WINS CLASH / DIRECT HIT ]
+  (Unopposed attack strikes          (Undertale Dodge Box Appears!)
+      enemy directly)               (Real-time red/blue soul dodging)
+             │                     (Hold Shift/X to half speed for micro-dodging)
+             │                     (Graze close to bullets to farm Deltarune TP)
+             │                               │
+             └───────────────┬───────────────┘
+                             ▼
+                  [ STATUS & STAGGER PHASE ]
+     (Burn turn-end ticks, Bleed coin hits, Stutter bursts raise Glitch bar)
+                             │
+                             ▼
+                   [ ENCOUNTER FINISH ]
+               (Enemy reaches 0 HP / Submits)
+                 ──► [PURIFY] or [PURGE]
+```
+
+### 4.1 Skill Deck & Slot Expansion (Limbus Adaptation)
 - **Deck Structure**:
   - `Skill1_PureDamage`: $3\times$ copies, baseline reliable attack, 2 coins.
   - `Skill2_HighPowerRare`: $1\times$ copy, higher power ceiling, 3 coins.
@@ -64,7 +171,7 @@
 - **Slot Progression**: Starts at $1$ slot on Turn 1, expanding by $+1$ slot each turn up to $6$ slots max.
 - *Naming Invariant*: Do not hardcode final skill names—the author will name all skills.
 
-### 3.2 Charge & Tension Math
+### 4.2 Charge & Tension Math
 - **Charge Pool**: Ranges from **$-45$ (Drained)** to **$+45$ (Overcharged)**.
 - **Coin Heads Probability Formula**:
   $$P(\text{Heads}) = \text{Clamp}\left(0.50 + \frac{\text{Clamp}(\text{Charge}, -45, 45)}{100},\; 0.05,\; 0.95\right)$$
@@ -74,7 +181,7 @@
   - Grazing bullets in dodge box adds proximity TP.
   - Spent via `SpendTensionToBoostCharge()` to raise Charge.
 
-### 3.3 Status Keywords & 4 Rare Resonance Hybrid Fusions
+### 4.3 Status Keywords & 4 Rare Resonance Hybrid Fusions
 - **Burn**: Deals `Potency` damage at turn end; `Count` drops by $1$.
 - **Bleed**: Deals `Potency` damage whenever an attack coin is flipped; `Count` drops by $1$.
 - **Poise**: `Potency`% chance for critical strike; `Count` drops by $1$ on crit.
@@ -88,17 +195,22 @@
   3. **Drainage + Stutter $\to$ `StaticSeizure`**: Draining Charge directly raises enemy Glitch threshold by drained amount.
   4. **Burn + Poise $\to$ `CobaltCombustion` (Blue Burn)**: Consumes $1$ Poise Count at turn end to deal **$1.5\times$ Critical Burn damage** (blue flame visual).
 
+### 4.4 OFF Encounter Caps & Progression
+- 4 zones with hard encounter caps (`25` per zone).
+- Zone level caps: $25 / 50 / 75 / 100$.
+- Modular item loadouts acting as player competence kits.
+
 ---
 
-## 4. Visual Art, Palette & Sprite Standards
+## 5. Visual Art, Palette & Sprite Standards
 
-### 4.1 Owen's Exact Color Palette
+### 5.1 Owen's Exact Color Palette
 - **Outline / Boots / Eye Shadow**: `#080013` `(8, 0, 19)`
 - **Hair**: `#2f201d` `(47, 32, 29)` & `#372825` `(55, 40, 37)`
 - **Skin (Warm Golden Tan)**: `#b28666` `(178, 134, 102)` & shadow `#8c664a` `(140, 102, 74)`
 - **Hoodie**: `#3f3f74` `(63, 63, 116)`, rib pattern/trim `#0f0f26` `(15, 15, 38)`, cuffs `#767676` `(118, 118, 118)`
 
-### 4.2 Sprite Anatomy & Import Rules
+### 5.2 Sprite Anatomy & Import Rules
 - **Import Settings**: `filterMode: 0` (Point / no filter), `spritePixelsPerUnit: 100`, pivot bottom-center `(0.5, 0)`.
 - **Walk/Idle Frame Alignment**: `Owen_Walk_Right_0` and `_2` ($158 \times 369$) are shifted vertically by $+8\text{px}$ relative to `Owen_Idle_Side_0` ($158 \times 354$). Always offset by $dy = +8$ so neck ($y = 120..151$) and collar stay connected.
 - **Arms & Hands**: Always use Owen's actual user-drawn arm (extracted from `Owen_Idle_Side_0.png` at $x = 40..81, y = 175..268$) rotated around shoulder pivot with `Image.NEAREST`—never procedural stick arms.
@@ -106,9 +218,9 @@
 
 ---
 
-## 5. Verified Codebase State & Active Files
+## 6. Verified Codebase State & Active Files
 
-### 5.1 Active Production Scripts (`Assets/Scripts/`)
+### 6.1 Active Production Scripts (`Assets/Scripts/`)
 | Path | Responsibility |
 | :--- | :--- |
 | [`Assets/Scripts/World/OverworldPlayerController.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/OverworldPlayerController.cs) | 4-direction walk/idle animation, $1.5\times$ diagonal speed, wall slide, New Input System, `InputLocked`, `SetFacingDirection`. |
@@ -130,7 +242,7 @@
 | [`Assets/Scripts/Core/SaveSystem.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Core/SaveSystem.cs) | JSON save file management (`digipurity_save.json`). |
 | [`Assets/Scripts/Core/TutorialManager.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Core/TutorialManager.cs) | 5-phase introductory onboarding state machine. |
 
-### 5.2 EditMode Test Suites (`Assets/Tests/EditMode/`)
+### 6.2 EditMode Test Suites (`Assets/Tests/EditMode/`)
 - [`AreaDoorTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/AreaDoorTests.cs) (Door matching, spawn offsets, Egg Room diversion/return, input locking)
 - [`RoomCameraTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/RoomCameraTests.cs) (4:3 pillarbox math, stationary small rooms, hallway tracking, torso center)
 - [`CombatSystemTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/CombatSystemTests.cs)
@@ -142,7 +254,7 @@
 
 ---
 
-## 6. Update History & Decision Log
+## 7. Update History & Decision Log
 
 | Date | Summary of Changes & Key Architectural Decisions |
 | :--- | :--- |
@@ -154,11 +266,11 @@
 | **2026-10-20** | **Procedural System Discarded $\to$ Toby Fox Workflow Adopted**: Evaluated and removed overengineered `ModularRoom` procedural script due to mutual recursion stack overflows and Rect Tool dragging locks. Replaced with clean Toby Fox static map approach: manual floor sprites + invisible `BoxCollider2D` wall blocks (`obj_solid`). |
 | **2026-10-20** | **Deltarune Doors & Secret Egg Room Implemented**: Researched Deltarune bytecode (`room_man`). Created [`AreaDoor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/AreaDoor.cs) and [`ScreenFader.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/ScreenFader.cs) with 2-way door IDs, screen fading, player input locking, and 1-in-50 (2%) Secret Egg Room diversion and return. |
 | **2026-10-20** | **WalkableSquare & Camera Calibration**: Reset `WalkableSquare` to 1:1 scale ($16 \times 16\text{ units}$), attached 4 solid border colliders, and calibrated camera `orthographicSize = 6.0f` so the room fills the 4:3 screen horizontally with zero black void. Fixed Unity 6 deprecation warnings. |
-| **2026-10-21** | **Learned Workflow & Master Context Consolidation**: Merged all isolated context notes into `digipurity_context.md`. Cleaned redundant files. Configured project context rule for cross-conversation agent handoff. |
+| **2026-10-21** | **Learned Workflow & Master Context Consolidation**: Merged all isolated context notes into `digipurity_context.md`. Cleaned redundant files. Added comprehensive narrative premise (2030, brother's fatal accident, consciousness transfer), Undertale/Deltarune satirical/tense tone balance, 5-zone breakdown (`abandon.war3`, `Humor`, `Art`, `Industrial`, `Humanity`), Triple T boss, and MCP/AM final boss. |
 
 ---
 
-## 7. Immediate Next Steps for Next Agent
+## 8. Immediate Next Steps for Next Agent
 
 1. **Test Overworld WalkableSquare & Area Doors in Unity**:
    - In Unity, verify Owen bumps solidly into all 4 blue borders in `SampleScene.unity`.
