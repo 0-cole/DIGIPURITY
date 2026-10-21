@@ -10,7 +10,7 @@ namespace DigiPurity.World
         [SerializeField] private float walkSpeed = 4.5f;
         [SerializeField] private float runMultiplier = 1.6f;
         [SerializeField] private float diagonalSpeedMultiplier = 1.5f;
-        [SerializeField] private bool clampToWalkableSquare = true;
+        [SerializeField] private bool clampToWalkableSquare = false;
 
         [Header("Sprites & Visuals")]
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -30,7 +30,6 @@ namespace DigiPurity.World
         [SerializeField] private FacingDirection currentFacing = FacingDirection.Down;
 
         private Rigidbody2D _rb;
-        private SpriteRenderer _floorSquareRenderer;
         private Vector2 _moveInput;
         private float _animTimer;
         private int _currentFrame;
@@ -80,132 +79,6 @@ namespace DigiPurity.World
             UpdateAnimation();
         }
 
-#if UNITY_EDITOR
-        [UnityEditor.InitializeOnLoadMethod]
-        private static void EditorAutoSetupScene()
-        {
-            UnityEditor.EditorSettings.enterPlayModeOptionsEnabled = false;
-            UnityEditor.EditorApplication.playModeStateChanged += state =>
-            {
-                if (state == UnityEditor.PlayModeStateChange.EnteredPlayMode ||
-                    state == UnityEditor.PlayModeStateChange.EnteredEditMode)
-                {
-                    EnsureSceneHasOwenAndSquare();
-                }
-            };
-            UnityEditor.EditorApplication.delayCall += () =>
-            {
-                EnsureSceneHasOwenAndSquare();
-            };
-        }
-#endif
-
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
-        private static void RuntimeAutoSetupScene()
-        {
-            EnsureSceneHasOwenAndSquare();
-        }
-
-        private static void EnsureSceneHasOwenAndSquare()
-        {
-            // Ensure a walkable square exists
-            GameObject squareObj = GameObject.Find("WalkableSquare");
-            if (squareObj == null) squareObj = GameObject.Find("Square");
-
-            if (squareObj == null)
-            {
-                squareObj = new GameObject("WalkableSquare");
-                squareObj.transform.position = Vector3.zero;
-                squareObj.transform.localScale = Vector3.one;
-                var sqSr = squareObj.AddComponent<SpriteRenderer>();
-                sqSr.sortingOrder = -10;
-#if UNITY_EDITOR
-                sqSr.sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Environment/WalkableSquare.png");
-#endif
-                if (sqSr.sprite == null)
-                {
-                    sqSr.sprite = CreateFallbackSquareSprite();
-                }
-            }
-            else
-            {
-                var sqSr = squareObj.GetComponent<SpriteRenderer>();
-                if (sqSr != null && sqSr.sortingOrder >= 0)
-                {
-                    sqSr.sortingOrder = -10;
-                }
-            }
-
-            // Ensure WalkableSquare has RoomBounds attached
-            if (squareObj != null && squareObj.GetComponent<RoomBounds>() == null)
-            {
-                squareObj.AddComponent<RoomBounds>();
-            }
-
-            // Ensure Camera has RoomCameraController attached
-            Camera mainCam = Camera.main;
-            if (mainCam == null) mainCam = FindAnyObjectByType<Camera>();
-            if (mainCam != null && mainCam.GetComponent<RoomCameraController>() == null)
-            {
-                mainCam.gameObject.AddComponent<RoomCameraController>();
-            }
-
-            // Ensure Owen exists and has OverworldPlayerController attached
-            OverworldPlayerController existingController = FindAnyObjectByType<OverworldPlayerController>();
-            if (existingController == null)
-            {
-                GameObject owenObj = GameObject.Find("Owen");
-                if (owenObj == null) owenObj = GameObject.Find("Player");
-
-                if (owenObj == null)
-                {
-                    owenObj = new GameObject("Owen");
-                    owenObj.tag = "Player";
-                    owenObj.transform.position = new Vector3(0f, -0.8f, 0f);
-                    owenObj.transform.localScale = new Vector3(0.95f, 0.95f, 1f);
-                }
-
-                if (owenObj.GetComponent<SpriteRenderer>() == null)
-                {
-                    var sr = owenObj.AddComponent<SpriteRenderer>();
-                    sr.sortingOrder = 10;
-                }
-
-                if (owenObj.GetComponent<Rigidbody2D>() == null)
-                {
-                    owenObj.AddComponent<Rigidbody2D>();
-                }
-
-                existingController = owenObj.AddComponent<OverworldPlayerController>();
-            }
-
-#if UNITY_EDITOR
-            existingController.AutoBindSpritesIfNeeded();
-            if (!Application.isPlaying)
-            {
-                UnityEditor.EditorUtility.SetDirty(existingController.gameObject);
-            }
-#endif
-        }
-
-        private static Sprite CreateFallbackSquareSprite()
-        {
-            Texture2D tex = new Texture2D(64, 64, TextureFormat.RGBA32, false);
-            tex.filterMode = FilterMode.Point;
-            Color fill = new Color(0.11f, 0.13f, 0.18f, 1f);
-            Color border = new Color(0.35f, 0.45f, 0.63f, 1f);
-            for (int y = 0; y < 64; y++)
-            {
-                for (int x = 0; x < 64; x++)
-                {
-                    bool isBorder = x < 2 || x >= 62 || y < 2 || y >= 62;
-                    tex.SetPixel(x, y, isBorder ? border : fill);
-                }
-            }
-            tex.Apply();
-            return Sprite.Create(tex, new Rect(0, 0, 64, 64), new Vector2(0.5f, 0.5f), 4f);
-        }
-
         private Collider2D _ownCollider;
         private ContactFilter2D _contactFilter;
         private readonly RaycastHit2D[] _hitBuffer = new RaycastHit2D[8];
@@ -242,21 +115,9 @@ namespace DigiPurity.World
             AutoBindSpritesIfNeeded();
 #endif
 
-            FindFloorSquare();
-
             if (idleDownSprite != null && spriteRenderer != null)
             {
                 spriteRenderer.sprite = idleDownSprite;
-            }
-        }
-
-        private void FindFloorSquare()
-        {
-            var sq = GameObject.Find("WalkableSquare");
-            if (sq == null) sq = GameObject.Find("Square");
-            if (sq != null)
-            {
-                _floorSquareRenderer = sq.GetComponent<SpriteRenderer>();
             }
         }
 
@@ -294,16 +155,6 @@ namespace DigiPurity.World
             if (spriteRenderer != null && spriteRenderer.sprite == null && idleDownSprite != null)
             {
                 spriteRenderer.sprite = idleDownSprite;
-            }
-
-            var squareObj = GameObject.Find("WalkableSquare");
-            if (squareObj != null)
-            {
-                var sqRenderer = squareObj.GetComponent<SpriteRenderer>();
-                if (sqRenderer != null && sqRenderer.sprite == null)
-                {
-                    sqRenderer.sprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Environment/WalkableSquare.png");
-                }
             }
         }
 
@@ -426,69 +277,41 @@ namespace DigiPurity.World
 
             Vector3 newPos = transform.position + new Vector3(actualDx, actualDy, 0f);
 
-            // Optional room/square clamp bounds check if clampToWalkableSquare is enabled
+            // Optional room clamp bounds check if clampToWalkableSquare is enabled
             if (clampToWalkableSquare)
             {
-                // If destination position is inside any active room or connected hallway, allow smooth passage!
-                var destRoom = RoomBounds.FindRoomForPosition(newPos);
-                if (destRoom == null)
+                var activeRoom = RoomBounds.FindRoomForPosition(newPos);
+                if (activeRoom == null) activeRoom = RoomBounds.FindRoomForPosition(transform.position);
+
+                if (activeRoom != null)
                 {
-                    Bounds b = default;
-                    bool hasBounds = false;
+                    Bounds b = activeRoom.GetEffectiveBounds();
+                    float halfWidth = 1.07f;
+                    float fullHeight = 3.89f;
+                    float footHeight = 0.18f;
 
-                    var activeRoom = RoomBounds.FindRoomForPosition(transform.position);
-                    if (activeRoom != null)
-                    {
-                        b = activeRoom.Bounds;
-                        hasBounds = true;
-                    }
-                    else
-                    {
-                        if (_floorSquareRenderer == null)
-                        {
-                            FindFloorSquare();
-                        }
+                    float minX = b.min.x + halfWidth;
+                    float maxX = b.max.x - halfWidth;
+                    float minY = b.min.y + footHeight;
+                    float maxY = b.max.y - fullHeight;
 
-                        if (_floorSquareRenderer != null)
+                    if (minX < maxX)
+                    {
+                        float clampedX = Mathf.Clamp(newPos.x, minX, maxX);
+                        if (Mathf.Abs(clampedX - newPos.x) > 0.0001f)
                         {
-                            b = _floorSquareRenderer.bounds;
-                            hasBounds = true;
+                            actualDx = 0f; // Stopped at border
+                            newPos.x = clampedX;
                         }
                     }
 
-                    if (hasBounds)
+                    if (minY < maxY)
                     {
-                        // Pixel-measured extents at 0.95 scale + 0.19 world unit border thickness + 1px safety margin
-                        // Left/Right: max extent is 0.874 + 0.188 border + 0.01 margin = 1.07f
-                        // Top: max head reach is 3.743 + 0.138 border + 0.01 margin = 3.89f
-                        // Bottom: shoe sole is at bottom edge + 0.138 border + 0.01 margin = 0.18f
-                        float halfWidth = 1.07f;
-                        float fullHeight = 3.89f;
-                        float footHeight = 0.18f;
-
-                        float minX = b.min.x + halfWidth;
-                        float maxX = b.max.x - halfWidth;
-                        float minY = b.min.y + footHeight;
-                        float maxY = b.max.y - fullHeight;
-
-                        if (minX < maxX)
+                        float clampedY = Mathf.Clamp(newPos.y, minY, maxY);
+                        if (Mathf.Abs(clampedY - newPos.y) > 0.0001f)
                         {
-                            float clampedX = Mathf.Clamp(newPos.x, minX, maxX);
-                            if (Mathf.Abs(clampedX - newPos.x) > 0.0001f)
-                            {
-                                actualDx = 0f; // Stopped at border
-                                newPos.x = clampedX;
-                            }
-                        }
-
-                        if (minY < maxY)
-                        {
-                            float clampedY = Mathf.Clamp(newPos.y, minY, maxY);
-                            if (Mathf.Abs(clampedY - newPos.y) > 0.0001f)
-                            {
-                                actualDy = 0f; // Stopped at border
-                                newPos.y = clampedY;
-                            }
+                            actualDy = 0f; // Stopped at border
+                            newPos.y = clampedY;
                         }
                     }
                 }

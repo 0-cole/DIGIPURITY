@@ -93,10 +93,16 @@ namespace DigiPurity.World
                 RoomBounds detected = RoomBounds.FindRoomForPosition(target.position, currentRoom);
                 if (detected != null && detected != currentRoom)
                 {
+                    bool areConnected = currentRoom != null && currentRoom.GetEffectiveBounds().Intersects(detected.GetEffectiveBounds());
                     currentRoom = detected;
-                    // Immediate cut/snap upon room transition, exactly like Undertale & Deltarune
-                    SnapToTarget();
-                    return;
+
+                    // Only snap if rooms are completely disconnected (e.g. door warp / teleport).
+                    // If they are connected (overlapping hallways / multifaceted rooms), smoothly follow through!
+                    if (!areConnected)
+                    {
+                        SnapToTarget();
+                        return;
+                    }
                 }
             }
 
@@ -111,7 +117,7 @@ namespace DigiPurity.World
             Vector3 desiredPos = CalculateCameraPosition(
                 targetCenter,
                 Vector2.zero,
-                currentRoom.Bounds,
+                currentRoom.GetEffectiveBounds(),
                 EffectiveOrthographicSize,
                 EffectiveAspect
             );
@@ -139,7 +145,7 @@ namespace DigiPurity.World
             Vector3 desiredPos = CalculateCameraPosition(
                 targetCenter,
                 Vector2.zero,
-                currentRoom.Bounds,
+                currentRoom.GetEffectiveBounds(),
                 EffectiveOrthographicSize,
                 EffectiveAspect
             );
@@ -275,7 +281,7 @@ namespace DigiPurity.World
 
         private void FindInitialRoomIfNeeded()
         {
-            if (currentRoom != null) return;
+            if (currentRoom != null && currentRoom.isActiveAndEnabled) return;
 
             if (target != null)
             {
@@ -283,17 +289,16 @@ namespace DigiPurity.World
                 if (currentRoom != null) return;
             }
 
-            var sq = GameObject.Find("WalkableSquare");
-            if (sq == null) sq = GameObject.Find("Square");
-
-            if (sq != null)
+            if (RoomBounds.ActiveRooms.Count > 0)
             {
-                var rb = sq.GetComponent<RoomBounds>();
-                if (rb == null)
-                {
-                    rb = sq.AddComponent<RoomBounds>();
-                }
-                currentRoom = rb;
+                currentRoom = RoomBounds.ActiveRooms[0];
+                return;
+            }
+
+            var anyRoom = FindAnyObjectByType<RoomBounds>();
+            if (anyRoom != null)
+            {
+                currentRoom = anyRoom;
             }
         }
 

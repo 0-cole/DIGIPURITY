@@ -69,9 +69,11 @@ namespace DigiPurity.World.Editor
 
             if (connectedRooms.Count > 0)
             {
+                Bounds effB = room.GetEffectiveBounds();
                 EditorGUILayout.HelpBox(
                     $"Connected to {connectedRooms.Count} overlapping room(s):\n• " + string.Join("\n• ", connectedRooms) +
-                    "\n(Owen and Camera will transition smoothly between them!)",
+                    $"\nUnified Camera Area: Size ({effB.size.x:F1} x {effB.size.y:F1}) | Center ({effB.center.x:F1}, {effB.center.y:F1})\n" +
+                    "(The camera treats these connected rooms as ONE continuous space and follows smoothly!)",
                     MessageType.Info);
             }
         }

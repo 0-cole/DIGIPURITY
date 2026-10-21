@@ -135,5 +135,32 @@ namespace DigiPurity.Tests
 
             Object.DestroyImmediate(testOwen);
         }
+
+        [Test]
+        public void RoomBounds_GetEffectiveBounds_MergesConnectedOverlappingRooms()
+        {
+            GameObject roomAObj = new GameObject("RoomA");
+            roomAObj.transform.position = new Vector3(0f, 0f, 0f);
+            var colA = roomAObj.AddComponent<BoxCollider2D>();
+            colA.size = new Vector2(16f, 12f);
+            var rbA = roomAObj.AddComponent<RoomBounds>();
+
+            GameObject roomBObj = new GameObject("RoomB");
+            roomBObj.transform.position = new Vector3(12f, 0f, 0f); // Overlaps with RoomA between X=4 and X=8
+            var colB = roomBObj.AddComponent<BoxCollider2D>();
+            colB.size = new Vector2(10f, 6f);
+            var rbB = roomBObj.AddComponent<RoomBounds>();
+
+            Bounds effA = rbA.GetEffectiveBounds();
+            Bounds effB = rbB.GetEffectiveBounds();
+
+            // Total merged width: RoomA min.x (-8) to RoomB max.x (12 + 5 = 17) -> total size 25
+            Assert.AreEqual(25f, effA.size.x, 0.05f, "RoomA effective bounds should encapsulate overlapping RoomB");
+            Assert.AreEqual(effA.size.x, effB.size.x, 0.05f, "Both connected rooms should share the exact same effective compound bounds");
+            Assert.AreEqual(effA.center.x, effB.center.x, 0.05f, "Both connected rooms should share the exact same effective center");
+
+            Object.DestroyImmediate(roomAObj);
+            Object.DestroyImmediate(roomBObj);
+        }
     }
 }

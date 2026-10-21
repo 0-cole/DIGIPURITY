@@ -26,6 +26,12 @@ namespace DigiPurity.World
         public Collider2D RoomCollider { get => roomCollider; set => roomCollider = value; }
         public SpriteRenderer RoomSpriteRenderer { get => roomSpriteRenderer; set => roomSpriteRenderer = value; }
 
+        [Header("Connected Rooms")]
+        [Tooltip("If true, automatically merges bounding boxes with any overlapping RoomBounds so the camera treats them as a single connected room.")]
+        [SerializeField] private bool mergeConnectedRooms = true;
+
+        public bool MergeConnectedRooms { get => mergeConnectedRooms; set => mergeConnectedRooms = value; }
+
         public Bounds Bounds
         {
             get
@@ -42,13 +48,13 @@ namespace DigiPurity.World
                         break;
 
                     case BoundsSource.SpriteRenderer:
+                        Bounds childSrBounds = GetCompositeRendererBounds();
+                        if (childSrBounds.size != Vector3.zero) return childSrBounds;
                         if (roomSpriteRenderer != null && roomSpriteRenderer.sprite != null)
                             return roomSpriteRenderer.bounds;
                         var srComponent = GetComponent<SpriteRenderer>();
                         if (srComponent != null && srComponent.sprite != null)
                             return srComponent.bounds;
-                        Bounds childSrBounds = GetCompositeRendererBounds();
-                        if (childSrBounds.size != Vector3.zero) return childSrBounds;
                         break;
 
                     case BoundsSource.Auto:
@@ -90,24 +96,60 @@ namespace DigiPurity.World
                             return childColBounds;
                         }
 
-                        // 6. Floor SpriteRenderer (visual room graphic boundary)
+                        // 6. Composite Floor Renderers (Parent + Child floor sprites & multifaceted hallways)
+                        Bounds compositeRendererBounds = GetCompositeRendererBounds();
+                        if (compositeRendererBounds.size != Vector3.zero)
+                        {
+                            return compositeRendererBounds;
+                        }
+
+                        // 7. Single SpriteRenderer fallback
                         var floorSr = roomSpriteRenderer != null ? roomSpriteRenderer : GetComponent<SpriteRenderer>();
                         if (floorSr != null && floorSr.enabled && floorSr.sprite != null)
                         {
                             return floorSr.bounds;
-                        }
-
-                        // 7. Child renderers
-                        Bounds childRenderBounds = GetCompositeRendererBounds();
-                        if (childRenderBounds.size != Vector3.zero)
-                        {
-                            return childRenderBounds;
                         }
                         break;
                 }
 
                 return new Bounds(transform.position, Vector3.one * 10f);
             }
+        }
+
+        /// <summary>
+        /// Returns the compound bounding box of this room and all directly or transitively overlapping RoomBounds.
+        /// Enables seamless camera follow and movement across multifaceted rooms and connected hallways.
+        /// </summary>
+        public Bounds GetEffectiveBounds()
+        {
+            Bounds b = Bounds;
+            if (!mergeConnectedRooms) return b;
+
+            var visited = new HashSet<RoomBounds> { this };
+            var queue = new Queue<RoomBounds>();
+            queue.Enqueue(this);
+
+            while (queue.Count > 0)
+            {
+                var current = queue.Dequeue();
+                Bounds currentB = current.Bounds;
+
+                for (int i = 0; i < _activeRooms.Count; i++)
+                {
+                    var other = _activeRooms[i];
+                    if (other == null || !other.isActiveAndEnabled || visited.Contains(other)) continue;
+
+                    if (currentB.Intersects(other.Bounds))
+                    {
+                        visited.Add(other);
+                        b.Encapsulate(other.Bounds);
+                        queue.Enqueue(other);
+                    }
+                }
+            }
+
+            return b;
+        }
         }
 
         public Bounds GetCompositeColliderBounds()
