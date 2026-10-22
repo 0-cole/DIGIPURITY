@@ -150,7 +150,6 @@ namespace DigiPurity.World
 
             return b;
         }
-        }
 
         public Bounds GetCompositeColliderBounds()
         {
