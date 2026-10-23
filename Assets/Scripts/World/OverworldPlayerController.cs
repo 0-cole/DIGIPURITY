@@ -10,7 +10,7 @@ namespace DigiPurity.World
         [SerializeField] private float walkSpeed = 4.5f;
         [SerializeField] private float runMultiplier = 1.6f;
         [SerializeField] private float diagonalSpeedMultiplier = 1.5f;
-        [SerializeField] private bool clampToWalkableSquare = false;
+        [SerializeField] private bool clampToWalkableSquare = true;
 
         [Header("Sprites & Visuals")]
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -297,47 +297,6 @@ namespace DigiPurity.World
             }
 
             Vector3 newPos = transform.position + new Vector3(actualDx, actualDy, 0f);
-
-            // Optional room clamp bounds check if clampToWalkableSquare is enabled
-            if (clampToWalkableSquare)
-            {
-                var activeRoom = RoomBounds.FindRoomForPosition(newPos);
-                if (activeRoom == null) activeRoom = RoomBounds.FindRoomForPosition(transform.position);
-
-                if (activeRoom != null)
-                {
-                    Bounds b = activeRoom.GetEffectiveBounds();
-                    float halfWidth = 1.07f;
-                    float fullHeight = 3.89f;
-                    float footHeight = 0.18f;
-
-                    float minX = b.min.x + halfWidth;
-                    float maxX = b.max.x - halfWidth;
-                    float minY = b.min.y + footHeight;
-                    float maxY = b.max.y - fullHeight;
-
-                    if (minX < maxX)
-                    {
-                        float clampedX = Mathf.Clamp(newPos.x, minX, maxX);
-                        if (Mathf.Abs(clampedX - newPos.x) > 0.0001f)
-                        {
-                            actualDx = 0f; // Stopped at border
-                            newPos.x = clampedX;
-                        }
-                    }
-
-                    if (minY < maxY)
-                    {
-                        float clampedY = Mathf.Clamp(newPos.y, minY, maxY);
-                        if (Mathf.Abs(clampedY - newPos.y) > 0.0001f)
-                        {
-                            actualDy = 0f; // Stopped at border
-                            newPos.y = clampedY;
-                        }
-                    }
-                }
-            }
-
             transform.position = newPos;
 
             // Determine if Owen is actually moving in his current facing direction
@@ -387,12 +346,12 @@ namespace DigiPurity.World
 
             dir.Normalize();
 
+            float allowedDist = dist;
+
+            // 1. Physical colliders (InvisibleWall, obstacles, props)
             if (_ownCollider != null && _ownCollider.enabled)
             {
                 int hitCount = _ownCollider.Cast(dir, _contactFilter, _hitBuffer, dist);
-                float minAllowed = dist;
-                bool hasHit = false;
-
                 for (int i = 0; i < hitCount; i++)
                 {
                     RaycastHit2D hit = _hitBuffer[i];
@@ -400,21 +359,50 @@ namespace DigiPurity.World
                     {
                         // Check if hit distance is essentially zero (wall right in front)
                         float allowed = Mathf.Max(0f, hit.distance - 0.01f);
-                        if (allowed < minAllowed)
+                        if (allowed < allowedDist)
                         {
-                            minAllowed = allowed;
-                            hasHit = true;
+                            allowedDist = allowed;
                         }
                     }
                 }
+            }
 
-                if (hasHit)
+            if (allowedDist < 0.0001f) return 0f;
+
+            // 2. Room floor boundary containment (Prevents Owen from walking into the black void off any room or hallway)
+            if (clampToWalkableSquare && RoomBounds.ActiveRooms.Count > 0)
+            {
+                Vector2 currentPos = transform.position;
+                Vector2 targetPos = currentPos + dir * allowedDist;
+
+                if (!RoomBounds.IsFootprintInAnyRoom(targetPos))
                 {
-                    return minAllowed * (dx != 0f ? Mathf.Sign(dx) : Mathf.Sign(dy));
+                    // If already outside all rooms (e.g. editor debug spawn), allow moving towards room
+                    if (RoomBounds.IsFootprintInAnyRoom(currentPos))
+                    {
+                        // Binary search to find maximum movement distance that stays on the floor
+                        float low = 0f;
+                        float high = allowedDist;
+                        for (int step = 0; step < 5; step++)
+                        {
+                            float mid = (low + high) * 0.5f;
+                            if (RoomBounds.IsFootprintInAnyRoom(currentPos + dir * mid))
+                            {
+                                low = mid;
+                            }
+                            else
+                            {
+                                high = mid;
+                            }
+                        }
+                        allowedDist = low;
+                    }
                 }
             }
 
-            return dx != 0f ? dx : dy;
+            if (allowedDist < 0.0001f) return 0f;
+
+            return allowedDist * (dx != 0f ? Mathf.Sign(dx) : Mathf.Sign(dy));
         }
 
         private void UpdateFacingDirection(float x, float y)

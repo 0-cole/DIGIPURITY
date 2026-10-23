@@ -57,5 +57,40 @@ namespace DigiPurity.Tests
             float expectedSpeed = walkSpeed * runMultiplier * diagonalMultiplier;
             Assert.AreEqual(expectedSpeed, diagRunVel.magnitude, 0.001f, "Diagonal running speed magnitude must be 1.5x running speed");
         }
+
+        [Test]
+        public void Overworld_FloorContainment_PreventsWalkingIntoVoid_InCompoundRooms()
+        {
+            // Room A: Main room (Center (0, 0), Size (16, 12) -> X [-8, 8], Y [-6, 6])
+            GameObject roomA = new GameObject("RoomA");
+            var colA = roomA.AddComponent<BoxCollider2D>();
+            colA.size = new Vector2(16f, 12f);
+            var rbA = roomA.AddComponent<RoomBounds>();
+
+            // Room B: Hallway extending to the right (Center (12, 0), Size (10, 4) -> X [7, 17], Y [-2, 2])
+            GameObject roomB = new GameObject("RoomB");
+            roomB.transform.position = new Vector3(12f, 0f, 0f);
+            var colB = roomB.AddComponent<BoxCollider2D>();
+            colB.size = new Vector2(10f, 4f);
+            var rbB = roomB.AddComponent<RoomBounds>();
+
+            // 1. Inside hallway: (12, 0)
+            Assert.IsTrue(RoomBounds.IsFootprintInAnyRoom(new Vector2(12f, 0f)), "Inside hallway should be walkable");
+
+            // 2. In void above hallway: X=14, Y=4 (above hallway's max Y of 2, and outside RoomA)
+            Assert.IsFalse(RoomBounds.IsFootprintInAnyRoom(new Vector2(14f, 4f)), "Void above hallway must NOT be walkable");
+
+            // 3. In void below hallway: X=14, Y=-4
+            Assert.IsFalse(RoomBounds.IsFootprintInAnyRoom(new Vector2(14f, -4f)), "Void below hallway must NOT be walkable");
+
+            // 4. In void past hallway end: X=19, Y=0
+            Assert.IsFalse(RoomBounds.IsFootprintInAnyRoom(new Vector2(19f, 0f)), "Void past hallway end must NOT be walkable");
+
+            // 5. At overlapping doorway: X=7.5, Y=0 (seamless doorway passage)
+            Assert.IsTrue(RoomBounds.IsFootprintInAnyRoom(new Vector2(7.5f, 0f)), "Doorway between rooms must be walkable");
+
+            Object.DestroyImmediate(roomA);
+            Object.DestroyImmediate(roomB);
+        }
     }
 }

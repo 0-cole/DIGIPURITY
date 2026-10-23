@@ -284,6 +284,48 @@ namespace DigiPurity.World
                    point.y >= (b.min.y - 0.05f) && point.y <= (b.max.y + 0.05f);
         }
 
+        /// <summary>
+        /// Checks whether a specific world point is inside the floor boundary of at least one active RoomBounds.
+        /// </summary>
+        public static bool IsPointInAnyRoom(Vector2 point, float margin = 0.05f)
+        {
+            for (int i = 0; i < _activeRooms.Count; i++)
+            {
+                var r = _activeRooms[i];
+                if (r == null || !r.isActiveAndEnabled) continue;
+
+                Bounds b = r.Bounds;
+                if (point.x >= (b.min.x - margin) && point.x <= (b.max.x + margin) &&
+                    point.y >= (b.min.y - margin) && point.y <= (b.max.y + margin))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks whether Owen's feet footprint is supported by a valid floor tile in at least one active room.
+        /// Ensures Owen never walks off the floor into the black void in multifaceted rooms or connected hallways.
+        /// </summary>
+        public static bool IsFootprintInAnyRoom(Vector2 pos, float halfWidth = 0.45f, float bottomY = 0.05f, float topY = 0.45f)
+        {
+            if (_activeRooms == null || _activeRooms.Count == 0) return true;
+
+            float midY = pos.y + (bottomY + topY) * 0.5f;
+            Vector2 center = new Vector2(pos.x, midY);
+            Vector2 left = new Vector2(pos.x - halfWidth, midY);
+            Vector2 right = new Vector2(pos.x + halfWidth, midY);
+            Vector2 bottom = new Vector2(pos.x, pos.y + bottomY);
+            Vector2 top = new Vector2(pos.x, pos.y + topY);
+
+            return IsPointInAnyRoom(center) &&
+                   IsPointInAnyRoom(left) &&
+                   IsPointInAnyRoom(right) &&
+                   IsPointInAnyRoom(bottom) &&
+                   IsPointInAnyRoom(top);
+        }
+
         public static RoomBounds FindRoomForPosition(Vector2 position, RoomBounds currentRoom = null)
         {
             RoomBounds bestRoom = null;
