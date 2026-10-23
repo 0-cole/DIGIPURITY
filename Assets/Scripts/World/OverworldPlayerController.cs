@@ -70,6 +70,13 @@ namespace DigiPurity.World
             }
         }
 
+        [Header("Depth & Perspective Sorting")]
+        [SerializeField] private bool dynamicDepthSorting = true;
+        [SerializeField] private int baseSortingOrder = 1000;
+        [SerializeField] private float sortingMultiplier = 32f;
+        public bool DynamicDepthSorting { get => dynamicDepthSorting; set => dynamicDepthSorting = value; }
+        public int BaseSortingOrder { get => baseSortingOrder; set => baseSortingOrder = value; }
+
         public void SetFacingDirection(FacingDirection direction)
         {
             currentFacing = direction;
@@ -260,6 +267,20 @@ namespace DigiPurity.World
 
             _wasMoving = _isMoving;
             _previousFacing = currentFacing;
+        }
+
+        private void LateUpdate()
+        {
+            if (dynamicDepthSorting && spriteRenderer != null)
+            {
+                float sortY = transform.position.y;
+                if (_ownCollider is BoxCollider2D box)
+                {
+                    Vector3 localFeet = new Vector3(box.offset.x, box.offset.y - (box.size.y * 0.5f), 0f);
+                    sortY = transform.TransformPoint(localFeet).y;
+                }
+                spriteRenderer.sortingOrder = baseSortingOrder - Mathf.RoundToInt(sortY * sortingMultiplier);
+            }
         }
 
         public static Vector2 CalculateVelocity(Vector2 input, float baseWalkSpeed, bool isRunning, float runMultiplier, float diagonalMultiplier)

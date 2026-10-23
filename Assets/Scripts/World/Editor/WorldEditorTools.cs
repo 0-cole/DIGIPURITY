@@ -157,5 +157,118 @@ namespace DigiPurity.World.Editor
             Undo.RegisterCreatedObjectUndo(go, "Create Secret Egg Door");
             Selection.activeObject = go;
         }
+
+        [MenuItem("GameObject/DIGIPURITY/NPC Creature (Solid)", false, 14)]
+        public static void CreateOverworldCreature(MenuCommand menuCommand)
+        {
+            GameObject go = new GameObject("NPC_Creature");
+            go.transform.position = Vector3.zero;
+            go.AddComponent<SpriteRenderer>();
+            go.AddComponent<OverworldCreature>();
+
+            GameObjectUtility.SetParentAndAlign(go, menuCommand.context as GameObject);
+            Undo.RegisterCreatedObjectUndo(go, "Create NPC Creature");
+            Selection.activeObject = go;
+        }
+
+        [MenuItem("GameObject/DIGIPURITY/Spawn Golfer Battle Encounter (Overworld + Stage)", false, 15)]
+        public static void CreateGolferBattleEncounter(MenuCommand menuCommand)
+        {
+            // 1. Overworld Golfer NPC
+            GameObject overworldGolfer = GameObject.Find("Overworld_Golfer");
+            if (overworldGolfer == null)
+            {
+                overworldGolfer = new GameObject("Overworld_Golfer");
+                overworldGolfer.transform.position = new Vector3(2.5f, 1.0f, 0f);
+            }
+            var sr = overworldGolfer.GetComponent<SpriteRenderer>();
+            if (sr == null) sr = overworldGolfer.AddComponent<SpriteRenderer>();
+            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer_256.png");
+            if (sr.sprite == null) sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer.png");
+            sr.sortingOrder = 10;
+
+            var col = overworldGolfer.GetComponent<BoxCollider2D>();
+            if (col == null) col = overworldGolfer.AddComponent<BoxCollider2D>();
+            col.isTrigger = true;
+            col.size = new Vector2(1.2f, 1.8f);
+
+            var enemyComp = overworldGolfer.GetComponent<DigiPurity.Combat.OverworldEnemy>();
+            if (enemyComp == null) enemyComp = overworldGolfer.AddComponent<DigiPurity.Combat.OverworldEnemy>();
+            enemyComp.AutoLoadSoul();
+
+            // Load or create Golfer EnemyData
+            var golferData = AssetDatabase.LoadAssetAtPath<DigiPurity.Combat.EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
+            if (golferData == null)
+            {
+                golferData = ScriptableObject.CreateInstance<DigiPurity.Combat.EnemyData>();
+                golferData.enemyId = "golfer";
+                golferData.enemyName = "Golfer";
+                golferData.description = "A rogue sports simulation entity infected by primitive AI scripts.";
+                golferData.battleSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer_256.png");
+                golferData.bulletSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/WhiteBullet_16.png");
+                golferData.maxHp = 100;
+                golferData.glitchThreshold = 50;
+                golferData.basePower = 4;
+                golferData.coinCount = 3;
+                golferData.coinPower = 3;
+                golferData.primarySkillName = "Putter Cleave";
+                AssetDatabase.CreateAsset(golferData, "Assets/Data/Enemies/Golfer_Data.asset");
+                AssetDatabase.SaveAssets();
+            }
+            enemyComp.SetEnemyData(golferData);
+
+            // 2. Battle Stage Master Container
+            GameObject battleStage = GameObject.Find("BattleStage");
+            if (battleStage == null)
+            {
+                battleStage = new GameObject("BattleStage");
+                battleStage.transform.position = Vector3.zero;
+            }
+
+            var bsc = battleStage.GetComponent<DigiPurity.Combat.BattleStageController>();
+            if (bsc == null) bsc = battleStage.AddComponent<DigiPurity.Combat.BattleStageController>();
+
+            // Owen Battle Entity (Left side)
+            Transform owenT = battleStage.transform.Find("Owen_Battle");
+            GameObject owenObj = owenT != null ? owenT.gameObject : new GameObject("Owen_Battle");
+            owenObj.transform.SetParent(battleStage.transform);
+            owenObj.transform.position = new Vector3(-5.0f, 0.5f, 0f);
+            var owenAnim = owenObj.GetComponent<DigiPurity.Combat.OwenBattleAnimator>();
+            if (owenAnim == null) owenAnim = owenObj.AddComponent<DigiPurity.Combat.OwenBattleAnimator>();
+            owenAnim.AutoLoadSprites();
+            var owenUI = owenObj.GetComponent<DigiPurity.Combat.BattleCombatantUI>();
+            if (owenUI == null) owenUI = owenObj.AddComponent<DigiPurity.Combat.BattleCombatantUI>();
+            owenUI.AutoLoadSprites();
+
+            // Golfer Battle Entity (Right side)
+            Transform golferT = battleStage.transform.Find("Golfer_Battle");
+            GameObject golferObj = golferT != null ? golferT.gameObject : new GameObject("Golfer_Battle");
+            golferObj.transform.SetParent(battleStage.transform);
+            golferObj.transform.position = new Vector3(5.0f, 0.5f, 0f);
+            var golferAnim = golferObj.GetComponent<DigiPurity.Combat.GolferBattleAnimator>();
+            if (golferAnim == null) golferAnim = golferObj.AddComponent<DigiPurity.Combat.GolferBattleAnimator>();
+            golferAnim.AutoLoadSprite();
+            golferAnim.SetBasePosition(new Vector3(5.0f, 0.5f, 0f));
+            var golferUI = golferObj.GetComponent<DigiPurity.Combat.BattleCombatantUI>();
+            if (golferUI == null) golferUI = golferObj.AddComponent<DigiPurity.Combat.BattleCombatantUI>();
+            golferUI.AutoLoadSprites();
+
+            // Central Bullet Hell Dodge Box
+            Transform dodgeT = battleStage.transform.Find("BattleDodgeBox");
+            GameObject dodgeObj = dodgeT != null ? dodgeT.gameObject : new GameObject("BattleDodgeBox");
+            dodgeObj.transform.SetParent(battleStage.transform);
+            dodgeObj.transform.position = new Vector3(0f, 0.5f, 0f);
+            var dodge = dodgeObj.GetComponent<DigiPurity.Combat.BattleDodgeBox>();
+            if (dodge == null) dodge = dodgeObj.AddComponent<DigiPurity.Combat.BattleDodgeBox>();
+            dodge.AutoLoadSprites();
+
+            battleStage.SetActive(false); // Inactive in overworld until Owen touches Golfer!
+
+            Undo.RegisterCreatedObjectUndo(overworldGolfer, "Spawn Overworld Golfer");
+            Undo.RegisterCreatedObjectUndo(battleStage, "Spawn Battle Stage");
+
+            Selection.activeGameObject = overworldGolfer;
+            Debug.Log("[DIGIPURITY] Overworld Golfer + 3rd-Person Deltarune x Limbus Battle Stage spawned!");
+        }
     }
 }
