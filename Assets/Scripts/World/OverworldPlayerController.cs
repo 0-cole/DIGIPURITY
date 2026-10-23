@@ -185,7 +185,7 @@ namespace DigiPurity.World
             float y = 0f;
             bool running = false;
 
-            // 1. Read Unity New Input System (WASD + Arrow Keys + Shift/X Run)
+            // 1. Read Unity New Input System Keyboard (WASD + Arrow Keys + Shift/X Run)
             Keyboard kb = Keyboard.current;
             if (kb != null)
             {
@@ -197,7 +197,27 @@ namespace DigiPurity.World
                 running = kb.leftShiftKey.isPressed || kb.rightShiftKey.isPressed || kb.xKey.isPressed;
             }
 
-            // 2. Also check Legacy Input Manager if available
+            // 2. Read Gamepad (Left Stick + D-Pad + East/Shoulder button run)
+            Gamepad pad = Gamepad.current;
+            if (pad != null)
+            {
+                Vector2 stick = pad.leftStick.ReadValue();
+                if (Mathf.Abs(stick.x) > 0.15f) x += Mathf.Sign(stick.x);
+                if (Mathf.Abs(stick.y) > 0.15f) y += Mathf.Sign(stick.y);
+
+                if (pad.dpad.right.isPressed) x += 1f;
+                if (pad.dpad.left.isPressed) x -= 1f;
+                if (pad.dpad.up.isPressed) y += 1f;
+                if (pad.dpad.down.isPressed) y -= 1f;
+
+                if (pad.buttonEast.isPressed || pad.leftShoulder.isPressed || pad.rightTrigger.isPressed)
+                {
+                    running = true;
+                }
+            }
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+            // 3. Optional Legacy Input Manager fallback
             try
             {
                 if (Mathf.Approximately(x, 0f) && Mathf.Approximately(y, 0f))
@@ -216,6 +236,7 @@ namespace DigiPurity.World
             {
                 // Ignore if legacy Input Manager is inactive in current Editor session
             }
+#endif
 
             Vector2 rawInput = new Vector2(x, y);
             bool rawMoving = rawInput.sqrMagnitude > 0.01f;
