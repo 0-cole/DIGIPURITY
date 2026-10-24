@@ -20,6 +20,8 @@ namespace DigiPurity.Combat
         public string responseText = "GOLFER - ATK 4 DEF 2. An obsolete virtual athlete puppeteered by rogue subroutines.";
         public int tpReward = 0;
         public int chargeDelta = 0;
+        public int mercyReward = 50;
+        public int purifyReward { get => mercyReward; set => mercyReward = value; }
     }
 
     [CreateAssetMenu(fileName = "NewEnemyData", menuName = "DIGIPURITY/Enemy Data", order = 10)]

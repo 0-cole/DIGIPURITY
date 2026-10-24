@@ -14,8 +14,9 @@ namespace DigiPurity.World
         [SerializeField] private float smoothTime = 0.08f;
 
         [Header("Fixed Camera Sizing & 4:3 Aspect Ratio")]
-        [Tooltip("Fixed camera orthographic size. 6.0 gives a 16-unit wide 4:3 viewport that aligns with a 16x16 retro room.")]
-        [SerializeField] private float setOrthographicSize = 6.0f;
+        [Tooltip("Fixed camera orthographic size. 9.0 gives a 24-unit wide 4:3 viewport (12x9 grid tiles at 2.0 units/tile) for natural player framing.")]
+        [Range(4f, 20f)]
+        [SerializeField] private float setOrthographicSize = 9.0f;
         [Tooltip("When true, camera size is strictly locked to setOrthographicSize.")]
         [SerializeField] private bool lockCameraSize = true;
         [Tooltip("When true, enforces classic 4:3 aspect ratio (Undertale / Deltarune) with solid black pillarbox/letterbox bars.")]
@@ -227,13 +228,25 @@ namespace DigiPurity.World
             }
         }
 
+        public static Rect Get4By3PixelRect()
+        {
+            Camera cam = Camera.main;
+            if (cam == null) return new Rect(0f, 0f, Screen.width, Screen.height);
+            Rect r = cam.rect;
+            float x = r.x * Screen.width;
+            float y = (1.0f - r.y - r.height) * Screen.height;
+            float w = r.width * Screen.width;
+            float h = r.height * Screen.height;
+            return new Rect(x, y, w, h);
+        }
+
         private void OnGUI()
         {
             if (!enforce4By3Aspect || _camera == null || Event.current.type != EventType.Repaint) return;
 
             Rect r = _camera.rect;
             int prevDepth = GUI.depth;
-            GUI.depth = -1500;
+            GUI.depth = -100; // Pillarbox bars render on margins, behind in-game UI (-500) and fader (-2000)
 
             // Draw pure black bars over the non-rendered margins for widescreen / ultrawide displays
             if (r.x > 0.001f)

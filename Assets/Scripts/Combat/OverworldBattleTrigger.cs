@@ -79,27 +79,37 @@ namespace DigiPurity.Combat
 
             Destroy(soulObj);
 
-            // 5. Hide Overworld Floor & Player, activate Battle Stage
-            var activeBattle = FindAnyObjectByType<BattleStageController>(FindObjectsInactive.Include);
-            if (activeBattle != null)
-            {
-                activeBattle.gameObject.SetActive(true);
-                activeBattle.StartNewTurn();
-            }
+            // Locate or spawn Battle Stage in deep void
+            var activeBattle = BattleStageController.EnsureBattleStageExists();
 
-            // Hide overworld player & this golfer
-            player.gameObject.SetActive(false);
-            gameObject.SetActive(false);
+            // Delegate transition to ScreenFader so deactivating this GameObject does not kill the fade coroutine
+            ScreenFader.Instance.Transition(
+                onBlack: () =>
+                {
+                    Camera mainCam = Camera.main;
+                    if (mainCam != null)
+                    {
+                        var roomCam = mainCam.GetComponent<DigiPurity.World.RoomCameraController>();
+                        if (roomCam != null) roomCam.enabled = false;
+                        mainCam.transform.position = new Vector3(1000f, 1000.5f, -10f);
+                        mainCam.orthographicSize = 6.0f;
+                    }
 
-            // 6. Fade in to Battle Stage
-            float fadeT = 0f;
-            while (fadeT < 0.3f)
-            {
-                fadeT += Time.deltaTime;
-                ScreenFader.Instance.SetAlpha(Mathf.Clamp01(1f - (fadeT / 0.3f)));
-                yield return null;
-            }
-            ScreenFader.Instance.SetAlpha(0f);
+                    if (activeBattle != null)
+                    {
+                        activeBattle.gameObject.SetActive(true);
+                        activeBattle.StartNewTurn();
+                    }
+
+                    player.gameObject.SetActive(false);
+                    gameObject.SetActive(false);
+                },
+                duration: 0.3f,
+                onComplete: () =>
+                {
+                    ScreenFader.Instance.SetAlpha(0f);
+                }
+            );
         }
     }
 }

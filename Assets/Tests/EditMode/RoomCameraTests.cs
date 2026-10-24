@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using NUnit.Framework;
 using UnityEngine;
 using DigiPurity.World;
@@ -137,6 +138,28 @@ namespace DigiPurity.Tests
         }
 
         [Test]
+        public void Camera_DefaultOrthographicSize_ProvidesExpanded24By18Viewport()
+        {
+            GameObject camObj = new GameObject("TestCam");
+            var cam = camObj.AddComponent<Camera>();
+            var rcc = camObj.AddComponent<RoomCameraController>();
+
+            // Default orthographic size is 9.0f, providing 24x18 units (12x9 retro tiles)
+            Assert.AreEqual(9.0f, rcc.SetOrthographicSize, 0.001f);
+            Assert.AreEqual(9.0f, rcc.EffectiveOrthographicSize, 0.001f);
+
+            float halfHeight = rcc.EffectiveOrthographicSize;
+            float halfWidth = halfHeight * RoomCameraController.TargetAspect4By3;
+            float viewWidth = halfWidth * 2f;
+            float viewHeight = halfHeight * 2f;
+
+            Assert.AreEqual(24.0f, viewWidth, 0.001f, "Camera view width should be 24 units (12 tiles at 2.0 PPU)");
+            Assert.AreEqual(18.0f, viewHeight, 0.001f, "Camera view height should be 18 units (9 tiles at 2.0 PPU)");
+
+            Object.DestroyImmediate(camObj);
+        }
+
+        [Test]
         public void RoomBounds_GetEffectiveBounds_MergesConnectedOverlappingRooms()
         {
             GameObject roomAObj = new GameObject("RoomA");
@@ -164,3 +187,4 @@ namespace DigiPurity.Tests
         }
     }
 }
+#endif

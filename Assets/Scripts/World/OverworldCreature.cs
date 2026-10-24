@@ -84,8 +84,10 @@ namespace DigiPurity.World
         [SerializeField] private Color gizmoFillColor = new Color(0.2f, 0.9f, 0.4f, 0.35f);
         [SerializeField] private Color gizmoWireColor = new Color(0.2f, 1.0f, 0.5f, 0.95f);
         [SerializeField] private Color gizmoSelectedColor = new Color(1.0f, 0.88f, 0.2f, 1.0f);
+#pragma warning disable CS0414
         [SerializeField] private bool showLabel = true;
         [SerializeField] private bool showInPlayMode = false;
+#pragma warning restore CS0414
 
         private BoxCollider2D _boxCollider;
         private SpriteRenderer _spriteRenderer;
@@ -310,6 +312,20 @@ namespace DigiPurity.World
             _lastEncounterTime = Time.time;
 
             Debug.Log($"[DIGIPURITY] Overworld encounter initiated with {creatureName} ({battleSceneOrId})!");
+
+            var overworldEnemy = GetComponent<Combat.OverworldEnemy>();
+            if (overworldEnemy == null)
+            {
+                overworldEnemy = gameObject.AddComponent<Combat.OverworldEnemy>();
+            }
+            if (overworldEnemy != null)
+            {
+                var player = FindAnyObjectByType<OverworldPlayerController>();
+                if (player != null)
+                {
+                    overworldEnemy.TriggerEncounter(player);
+                }
+            }
         }
 
 #if UNITY_EDITOR

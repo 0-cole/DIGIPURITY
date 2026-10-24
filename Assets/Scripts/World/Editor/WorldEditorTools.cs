@@ -5,6 +5,24 @@ namespace DigiPurity.World.Editor
 {
     public static class WorldEditorTools
     {
+        [MenuItem("File/Reload Active Scene From Disk %&#r", false, 150)]
+        [MenuItem("DIGIPURITY/Reload Current Scene from Disk", false, 0)]
+        public static void ReloadActiveScene()
+        {
+            var activeScene = UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene();
+            if (!string.IsNullOrEmpty(activeScene.path))
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.OpenScene(activeScene.path, UnityEditor.SceneManagement.OpenSceneMode.Single);
+                Debug.Log($"[DIGIPURITY] Reloaded scene '{activeScene.path}' from disk.");
+            }
+            else
+            {
+                string fallbackPath = System.IO.File.Exists("Assets/Scenes/TestScene.unity") ? "Assets/Scenes/TestScene.unity" : "Assets/Scenes/SampleScene.unity";
+                UnityEditor.SceneManagement.EditorSceneManager.OpenScene(fallbackPath, UnityEditor.SceneManagement.OpenSceneMode.Single);
+                Debug.Log($"[DIGIPURITY] Opened {fallbackPath} from disk.");
+            }
+        }
+
         [MenuItem("GameObject/DIGIPURITY/Rebuild Clean WalkableSquare (1:1 Scale + Walls)", false, 1)]
         public static void RebuildCleanSquare()
         {
@@ -61,7 +79,7 @@ namespace DigiPurity.World.Editor
             {
                 var rcc = mainCam.GetComponent<RoomCameraController>();
                 if (rcc == null) rcc = mainCam.gameObject.AddComponent<RoomCameraController>();
-                rcc.SetOrthographicSize = 6.0f;
+                rcc.SetOrthographicSize = 9.0f;
                 rcc.CurrentRoom = rb;
                 rcc.SnapToTarget();
             }
@@ -172,31 +190,47 @@ namespace DigiPurity.World.Editor
         }
 
         [MenuItem("GameObject/DIGIPURITY/Spawn Golfer Battle Encounter (Overworld + Stage)", false, 15)]
+        [MenuItem("DIGIPURITY/Setup Golfer Battle Encounter in Scene", false, 1)]
+        public static void CreateGolferBattleEncounter()
+        {
+            CreateGolferBattleEncounter(null);
+        }
+
         public static void CreateGolferBattleEncounter(MenuCommand menuCommand)
         {
-            // 1. Overworld Golfer NPC
-            GameObject overworldGolfer = GameObject.Find("Overworld_Golfer");
+            // 1. Overworld Golfer NPC (find existing Golfer or Overworld_Golfer)
+            GameObject overworldGolfer = GameObject.Find("Golfer");
+            if (overworldGolfer == null) overworldGolfer = GameObject.Find("Overworld_Golfer");
             if (overworldGolfer == null)
             {
-                overworldGolfer = new GameObject("Overworld_Golfer");
+                overworldGolfer = new GameObject("Golfer");
                 overworldGolfer.transform.position = new Vector3(2.5f, 1.0f, 0f);
             }
             var sr = overworldGolfer.GetComponent<SpriteRenderer>();
             if (sr == null) sr = overworldGolfer.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer_256.png");
-            if (sr.sprite == null) sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer.png");
-            sr.sortingOrder = 10;
+            if (sr.sprite == null)
+            {
+                sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer_256.png");
+                if (sr.sprite == null) sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer.png");
+            }
+            if (sr.sortingOrder <= 0) sr.sortingOrder = 10;
 
             var col = overworldGolfer.GetComponent<BoxCollider2D>();
-            if (col == null) col = overworldGolfer.AddComponent<BoxCollider2D>();
-            col.isTrigger = true;
-            col.size = new Vector2(1.2f, 1.8f);
+            if (col == null)
+            {
+                col = overworldGolfer.AddComponent<BoxCollider2D>();
+                col.size = new Vector2(1.2f, 1.8f);
+            }
 
             var enemyComp = overworldGolfer.GetComponent<DigiPurity.Combat.OverworldEnemy>();
             if (enemyComp == null) enemyComp = overworldGolfer.AddComponent<DigiPurity.Combat.OverworldEnemy>();
             enemyComp.AutoLoadSoul();
 
             // Load or create Golfer EnemyData
+            if (!System.IO.Directory.Exists("Assets/Data/Enemies"))
+            {
+                System.IO.Directory.CreateDirectory("Assets/Data/Enemies");
+            }
             var golferData = AssetDatabase.LoadAssetAtPath<DigiPurity.Combat.EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
             if (golferData == null)
             {
@@ -212,55 +246,51 @@ namespace DigiPurity.World.Editor
                 golferData.coinCount = 3;
                 golferData.coinPower = 3;
                 golferData.primarySkillName = "Putter Cleave";
+                golferData.inBattleBarks = new string[]
+                {
+                    "PAR FOR THE COURSE.",
+                    "NICE SHOT, OWEN.",
+                    "OUT OF BOUNDS ERROR.",
+                    "FORE! SYSTEM CORRUPT."
+                };
+                golferData.talkOptions = new System.Collections.Generic.List<DigiPurity.Combat.TalkOption>()
+                {
+                    new DigiPurity.Combat.TalkOption
+                    {
+                        optionName = "Check",
+                        responseText = "GOLFER - ATK 4 DEF 2. Mindlessly repeating the 18th hole from 2004."
+                    },
+                    new DigiPurity.Combat.TalkOption
+                    {
+                        optionName = "Analyze Swing",
+                        responseText = "You pointed out a hitch in his backswing. Golfer looks perturbed (+15 TP)!",
+                        tpReward = 38
+                    },
+                    new DigiPurity.Combat.TalkOption
+                    {
+                        optionName = "Heckle",
+                        responseText = "You yelled during his putting routine. His Charge dropped!",
+                        chargeDelta = -15
+                    }
+                };
                 AssetDatabase.CreateAsset(golferData, "Assets/Data/Enemies/Golfer_Data.asset");
                 AssetDatabase.SaveAssets();
             }
             enemyComp.SetEnemyData(golferData);
 
-            // 2. Battle Stage Master Container
+            // 2. Battle Stage Master Container in Deep Void (1000, 1000)
             GameObject battleStage = GameObject.Find("BattleStage");
             if (battleStage == null)
             {
                 battleStage = new GameObject("BattleStage");
-                battleStage.transform.position = Vector3.zero;
             }
+            battleStage.transform.SetParent(null); // Keep at scene root
+            battleStage.transform.position = new Vector3(1000f, 1000f, 0f);
 
             var bsc = battleStage.GetComponent<DigiPurity.Combat.BattleStageController>();
             if (bsc == null) bsc = battleStage.AddComponent<DigiPurity.Combat.BattleStageController>();
-
-            // Owen Battle Entity (Left side)
-            Transform owenT = battleStage.transform.Find("Owen_Battle");
-            GameObject owenObj = owenT != null ? owenT.gameObject : new GameObject("Owen_Battle");
-            owenObj.transform.SetParent(battleStage.transform);
-            owenObj.transform.position = new Vector3(-5.0f, 0.5f, 0f);
-            var owenAnim = owenObj.GetComponent<DigiPurity.Combat.OwenBattleAnimator>();
-            if (owenAnim == null) owenAnim = owenObj.AddComponent<DigiPurity.Combat.OwenBattleAnimator>();
-            owenAnim.AutoLoadSprites();
-            var owenUI = owenObj.GetComponent<DigiPurity.Combat.BattleCombatantUI>();
-            if (owenUI == null) owenUI = owenObj.AddComponent<DigiPurity.Combat.BattleCombatantUI>();
-            owenUI.AutoLoadSprites();
-
-            // Golfer Battle Entity (Right side)
-            Transform golferT = battleStage.transform.Find("Golfer_Battle");
-            GameObject golferObj = golferT != null ? golferT.gameObject : new GameObject("Golfer_Battle");
-            golferObj.transform.SetParent(battleStage.transform);
-            golferObj.transform.position = new Vector3(5.0f, 0.5f, 0f);
-            var golferAnim = golferObj.GetComponent<DigiPurity.Combat.GolferBattleAnimator>();
-            if (golferAnim == null) golferAnim = golferObj.AddComponent<DigiPurity.Combat.GolferBattleAnimator>();
-            golferAnim.AutoLoadSprite();
-            golferAnim.SetBasePosition(new Vector3(5.0f, 0.5f, 0f));
-            var golferUI = golferObj.GetComponent<DigiPurity.Combat.BattleCombatantUI>();
-            if (golferUI == null) golferUI = golferObj.AddComponent<DigiPurity.Combat.BattleCombatantUI>();
-            golferUI.AutoLoadSprites();
-
-            // Central Bullet Hell Dodge Box
-            Transform dodgeT = battleStage.transform.Find("BattleDodgeBox");
-            GameObject dodgeObj = dodgeT != null ? dodgeT.gameObject : new GameObject("BattleDodgeBox");
-            dodgeObj.transform.SetParent(battleStage.transform);
-            dodgeObj.transform.position = new Vector3(0f, 0.5f, 0f);
-            var dodge = dodgeObj.GetComponent<DigiPurity.Combat.BattleDodgeBox>();
-            if (dodge == null) dodge = dodgeObj.AddComponent<DigiPurity.Combat.BattleDodgeBox>();
-            dodge.AutoLoadSprites();
+            bsc.EnsureCombatantsExist();
+            bsc.AutoLoadIcons();
 
             battleStage.SetActive(false); // Inactive in overworld until Owen touches Golfer!
 
@@ -268,7 +298,24 @@ namespace DigiPurity.World.Editor
             Undo.RegisterCreatedObjectUndo(battleStage, "Spawn Battle Stage");
 
             Selection.activeGameObject = overworldGolfer;
-            Debug.Log("[DIGIPURITY] Overworld Golfer + 3rd-Person Deltarune x Limbus Battle Stage spawned!");
+            Debug.Log("[DIGIPURITY] Clean Deltarune Battle Stage in deep void (1000, 1000) configured!");
+        }
+
+        [MenuItem("DIGIPURITY/Setup Glitching Lucas Sign at Doorway", false, 60)]
+        public static void SetupLucasSign()
+        {
+            var signObj = GameObject.Find("Lucas_Sign");
+            if (signObj == null)
+            {
+                signObj = new GameObject("Lucas_Sign");
+            }
+            signObj.transform.position = LucasSign.DEFAULT_SIGN_POS;
+            var signComp = signObj.GetComponent<LucasSign>();
+            if (signComp == null) signComp = signObj.AddComponent<LucasSign>();
+
+            Undo.RegisterCreatedObjectUndo(signObj, "Spawn Lucas Sign");
+            Selection.activeGameObject = signObj;
+            Debug.Log($"[DIGIPURITY] Glitching Lucas Sign placed at doorway {LucasSign.DEFAULT_SIGN_POS}!");
         }
     }
 }

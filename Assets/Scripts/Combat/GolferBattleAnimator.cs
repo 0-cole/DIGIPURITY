@@ -15,19 +15,18 @@ namespace DigiPurity.Combat
 
         public void AutoLoadSprite()
         {
-#if UNITY_EDITOR
             if (defaultGolferSprite == null)
             {
-                defaultGolferSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer_256.png");
+                defaultGolferSprite = OwenBattleAnimator.LoadSpriteDirect("Assets/Sprites/Golfer/Golfer_256.png", new Vector2(0.5f, 0f), 100f);
                 if (defaultGolferSprite == null)
                 {
-                    defaultGolferSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer.png");
+                    defaultGolferSprite = OwenBattleAnimator.LoadSpriteDirect("Assets/Sprites/Golfer/Golfer.png", new Vector2(0.5f, 0f), 100f);
                 }
             }
-#endif
+
             if (defaultGolferSprite != null)
             {
-                SetEnemyVisuals(defaultGolferSprite, null, 1.0f);
+                SetEnemyVisuals(defaultGolferSprite, null, 4.35f);
             }
         }
     }

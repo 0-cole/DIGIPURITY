@@ -19,6 +19,14 @@ namespace DigiPurity.Combat
         public int InvulnerabilityFrames => _invulnerabilityFrames;
         public float DiagonalMultiplier => diagonalMultiplier;
 
+        public void SetBounds(Vector2 min, Vector2 max, float margin = 0.15f)
+        {
+            boundsMin = min;
+            boundsMax = max;
+            borderMargin = margin;
+            _logic = new SoulMovementLogic(baseSpeed, boundsMin, boundsMax, borderMargin, diagonalMultiplier);
+        }
+
         private void Awake()
         {
             _logic = new SoulMovementLogic(baseSpeed, boundsMin, boundsMax, borderMargin, diagonalMultiplier);

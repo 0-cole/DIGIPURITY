@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2bfab7b931346dcb692230c8eddc5e6, type: 3}
+  m_Name: Golfer_Data
+  m_EditorClassIdentifier: Assembly-CSharp::DigiPurity.Combat.EnemyData
+  enemyId: golfer
+  enemyName: Golfer
+  description: A rogue sports simulation entity infected by primitive AI scripts.
+  overworldSprite: {fileID: 21300000, guid: 8b53da6ff12549888af19fa1199d8ceb, type: 3}
+  battleSprite: {fileID: 21300000, guid: 5cb3f7bb0a21434297b9f3d4f44732f9, type: 3}
+  battleHurtSprite: {fileID: 0}
+  bulletSprite: {fileID: 21300000, guid: 271281126b2849efb83b3c1c66992389, type: 3}
+  bulletColor: {r: 1, g: 1, b: 1, a: 1}
+  battleSpriteScale: 1
+  battleBgm: {fileID: 8300000, guid: 6b86bf50566546e58efa94d6e5aa5204, type: 3}
+  attackSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  maxHp: 100
+  glitchThreshold: 50
+  basePower: 4
+  coinCount: 3
+  coinPower: 3
+  primarySkillName: Putter Cleave
+  inBattleBarks:
+  - PAR FOR THE COURSE.
+  - NICE SHOT, OWEN.
+  - OUT OF BOUNDS ERROR.
+  - FORE! SYSTEM CORRUPT.
+  talkOptions:
+  - optionName: Check
+    responseText: GOLFER - ATK 4 DEF 2. A weary sports bot repeating the 18th hole from 2004.
+    tpReward: 0
+    chargeDelta: 0
+    mercyReward: 0
+  - optionName: Golf Tips
+    responseText: Owen points out a flaw in his backswing. Golfer is impressed!
+    tpReward: 25
+    chargeDelta: 0
+    mercyReward: 50
+  - optionName: Compliment
+    responseText: You praised his smooth follow-through. Golfer smiles faintly!
+    tpReward: 25
+    chargeDelta: 0
+    mercyReward: 50
+  - optionName: Heckle
+    responseText: You yelled during his putting routine. He grimaces!
+    tpReward: 0
+    chargeDelta: -15
+    mercyReward: 25
+  primaryPattern: 0
+  bulletSpeed: 3.2
+  bulletDamage: 8
+  dodgePhaseDuration: 5

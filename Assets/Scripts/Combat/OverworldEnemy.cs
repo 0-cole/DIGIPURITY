@@ -32,8 +32,17 @@ namespace DigiPurity.Combat
 
         private void Awake()
         {
+#if UNITY_EDITOR
+            if (enemyData == null)
+            {
+                enemyData = UnityEditor.AssetDatabase.LoadAssetAtPath<EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
+            }
+#endif
             var col = GetComponent<Collider2D>();
-            if (col != null) col.isTrigger = true;
+            if (col != null && GetComponent<DigiPurity.World.OverworldCreature>() == null)
+            {
+                col.isTrigger = true;
+            }
 
             if (spriteRenderer == null) spriteRenderer = GetComponentInChildren<SpriteRenderer>();
 
@@ -124,6 +133,17 @@ namespace DigiPurity.Combat
             }
         }
 
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (_isEncounterTriggered) return;
+
+            var player = collision.gameObject.GetComponent<OverworldPlayerController>();
+            if (player != null)
+            {
+                TriggerEncounter(player);
+            }
+        }
+
         public void TriggerEncounter(OverworldPlayerController player)
         {
             if (_isEncounterTriggered) return;
@@ -163,31 +183,47 @@ namespace DigiPurity.Combat
             // Final blackout
             sr.enabled = true;
             ScreenFader.Instance.SetAlpha(1.0f);
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.15f);
 
             Destroy(soulObj);
 
-            // 4. Locate or instantiate Battle Stage, pass this enemy's EnemyData!
-            var battleStage = FindAnyObjectByType<BattleStageController>(FindObjectsInactive.Include);
-            if (battleStage != null)
-            {
-                battleStage.gameObject.SetActive(true);
-                battleStage.InitializeWithEnemy(enemyData);
-            }
+            // Locate or spawn Battle Stage in deep void
+            var battleStage = BattleStageController.EnsureBattleStageExists();
 
-            // Hide overworld player & this overworld enemy
-            player.gameObject.SetActive(false);
-            gameObject.SetActive(false);
+            // Delegate room/battle swap to ScreenFader.Instance so deactivating
+            // this GameObject does NOT kill the fade-in coroutine!
+            ScreenFader.Instance.Transition(
+                onBlack: () =>
+                {
+                    // 1. Center Main Camera over the battle stage and disable overworld room clamping
+                    Camera mainCam = Camera.main;
+                    if (mainCam != null)
+                    {
+                        var roomCam = mainCam.GetComponent<RoomCameraController>();
+                        if (roomCam != null) roomCam.enabled = false;
 
-            // 5. Fade in to Battle Stage
-            float fadeT = 0f;
-            while (fadeT < 0.3f)
-            {
-                fadeT += Time.deltaTime;
-                ScreenFader.Instance.SetAlpha(Mathf.Clamp01(1f - (fadeT / 0.3f)));
-                yield return null;
-            }
-            ScreenFader.Instance.SetAlpha(0f);
+                        Vector3 stagePos = battleStage != null ? battleStage.transform.position : new Vector3(1000f, 1000f, 0f);
+                        mainCam.transform.position = new Vector3(stagePos.x, stagePos.y + 0.5f, -10f);
+                        mainCam.orthographicSize = 6.0f;
+                    }
+
+                    // 2. Activate battle stage and pass this enemy's data
+                    if (battleStage != null)
+                    {
+                        battleStage.gameObject.SetActive(true);
+                        battleStage.InitializeWithEnemy(enemyData, player, this);
+                    }
+
+                    // 3. Hide overworld player & this overworld enemy
+                    player.gameObject.SetActive(false);
+                    gameObject.SetActive(false);
+                },
+                duration: 0.3f,
+                onComplete: () =>
+                {
+                    ScreenFader.Instance.SetAlpha(0f);
+                }
+            );
         }
     }
 }

@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using NUnit.Framework;
 using UnityEngine;
 using DigiPurity.Combat;
@@ -37,5 +38,37 @@ namespace DigiPurity.Tests
             Assert.AreEqual(88f, system.CurrentTension, 0.001f);
             Assert.AreEqual(-15, system.CurrentCharge);
         }
+
+        [Test]
+        public void TalkOption_PurifyReward_SyncsWithMercyReward()
+        {
+            var opt = new TalkOption { optionName = "Golf Tips", mercyReward = 50 };
+            Assert.AreEqual(50, opt.purifyReward);
+
+            opt.purifyReward = 75;
+            Assert.AreEqual(75, opt.mercyReward);
+        }
+
+        [Test]
+        public void BattleStage_PurgeMarker_RecognizesThreshold()
+        {
+            var go = new GameObject("TestBattleStage");
+            var stage = go.AddComponent<BattleStageController>();
+
+            stage.enemyMaxHp = 100;
+            stage.purgeMarkerHp = 0;
+
+            stage.enemyCurrentHp = 100;
+            Assert.IsFalse(stage.IsEnemyAtPurgeMarker, "At 100 HP, enemy should NOT be at purge marker.");
+
+            stage.enemyCurrentHp = 35;
+            Assert.IsFalse(stage.IsEnemyAtPurgeMarker, "At 35 HP, enemy should NOT be at purge marker.");
+
+            stage.enemyCurrentHp = 0;
+            Assert.IsTrue(stage.IsEnemyAtPurgeMarker, "At 0 HP (exhausted), enemy should be ready for PURGE.");
+
+            Object.DestroyImmediate(go);
+        }
     }
 }
+#endif

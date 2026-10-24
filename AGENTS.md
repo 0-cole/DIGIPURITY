@@ -6,7 +6,7 @@ When working on the **DIGIPURITY** repository:
    - Always read and consult [`digipurity_context.md`](file:///c:/Users/cdbla/Documents/GitHub/DIGIPURITY/digipurity_context.md) at the beginning of any conversation or task before proposing or modifying systems.
    - Respect established architectural invariants documented in the context file:
      - **Toby Fox Level Design**: Use static floor sprites + invisible `BoxCollider2D` solid wall colliders (`obj_solid`). Never reintroduce procedural room generators or runtime doorway cutters.
-     - **4:3 Undertale Camera**: Maintain locked orthographic size `6.0f`, torso-centering, room clamping, and black letterbox/pillarbox bars.
+     - **4:3 Undertale Camera**: Maintain locked orthographic size `9.0f` (24x18 units / 12x9 tiles), torso-centering, room clamping, and black letterbox/pillarbox bars.
      - **Deltarune Doors & Secret Egg Room**: Use `AreaDoor.cs` for 2-way paired door transitions and 1-in-50 (2%) secret room diversions.
      - **4-Way Combat Synthesis**: Maintain the Limbus deck/coin, Deltarune TP/Graze, Undertale dodge box, and OFF encounter/level cap math.
      - **Narrative & Tonal Authenticity**: Maintain the tense, vengeful emotional spine blended with satirical, surreal, comedic Undertale/Deltarune tone critiquing modern AI content farming.

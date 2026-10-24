@@ -37,7 +37,7 @@ namespace DigiPurity.Combat
             if (coinBroken == null) coinBroken = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/Coin_Broken.png");
             if (swordIcon == null) swordIcon = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/Icon_Sword.png");
 
-            if (coinSpinFrames == null || coinSpinFrames.Length == 0)
+            if (coinSpinFrames == null || coinSpinFrames.Length < 4 || coinSpinFrames[0] == null)
             {
                 coinSpinFrames = new Sprite[4];
                 for (int i = 0; i < 4; i++)

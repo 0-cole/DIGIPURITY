@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using NUnit.Framework;
 using DigiPurity.Combat;
 using DigiPurity.World;
@@ -79,3 +80,4 @@ namespace DigiPurity.Tests
         }
     }
 }
+#endif

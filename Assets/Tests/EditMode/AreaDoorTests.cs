@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using NUnit.Framework;
 using UnityEngine;
 using DigiPurity.World;
@@ -100,3 +101,4 @@ namespace DigiPurity.Tests
         }
     }
 }
+#endif

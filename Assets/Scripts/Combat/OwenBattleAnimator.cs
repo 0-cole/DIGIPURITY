@@ -32,10 +32,11 @@ namespace DigiPurity.Combat
         private float _animTimer = 0f;
         private int _currentFrame = 0;
         private Coroutine _specialAnimCoroutine;
+        private Vector3 _basePosition;
 
         public BattleAnimState CurrentState => _currentState;
 
-        private void Awake()
+        public SpriteRenderer EnsureRenderer()
         {
             if (spriteRenderer == null)
             {
@@ -45,51 +46,95 @@ namespace DigiPurity.Combat
                     spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
                 }
             }
+            if (spriteRenderer.material == null || spriteRenderer.material.shader.name != "Universal Render Pipeline/2D/Sprite-Unlit-Default")
+            {
+                spriteRenderer.material = BattleDodgeBox.GetUnlitMaterial(Color.white);
+            }
+            spriteRenderer.color = Color.white;
+            if (spriteRenderer.sortingOrder < 10) spriteRenderer.sortingOrder = 50;
+            return spriteRenderer;
+        }
 
+        public void SetBasePosition(Vector3 newPos)
+        {
+            _basePosition = newPos;
+            transform.position = newPos;
+        }
+
+        public static Sprite LoadSpriteDirect(string relativePath, Vector2 pivot, float ppu = 100f)
+        {
+#if UNITY_EDITOR
+            Sprite asset = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(relativePath);
+            if (asset != null) return asset;
+#endif
+            try
+            {
+                string fullPath = System.IO.Path.Combine(Application.dataPath, "..", relativePath);
+                if (System.IO.File.Exists(fullPath))
+                {
+                    byte[] bytes = System.IO.File.ReadAllBytes(fullPath);
+                    Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+                    tex.LoadImage(bytes);
+                    tex.filterMode = FilterMode.Point;
+                    return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), pivot, ppu);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[OwenBattleAnimator] Direct sprite load failed for {relativePath}: {ex.Message}");
+            }
+            return null;
+        }
+
+        private void Awake()
+        {
+            EnsureRenderer();
             AutoLoadSprites();
+            _basePosition = transform.position;
         }
 
         public void AutoLoadSprites()
         {
-#if UNITY_EDITOR
-            if (idleFrames == null || idleFrames.Length == 0)
+            EnsureRenderer();
+
+            if (idleFrames == null || idleFrames.Length == 0 || idleFrames[0] == null)
             {
                 idleFrames = new Sprite[4];
                 for (int i = 0; i < 4; i++)
                 {
-                    idleFrames[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Sprites/Owen/Battle/Owen_Battle_Idle_{i}.png");
+                    idleFrames[i] = LoadSpriteDirect($"Assets/Sprites/Owen/Battle/Owen_Battle_Idle_{i}.png", new Vector2(0.5f, 0f), 100f);
                 }
             }
 
-            if (attackFrames == null || attackFrames.Length == 0)
+            if (attackFrames == null || attackFrames.Length == 0 || attackFrames[0] == null)
             {
                 attackFrames = new Sprite[5];
                 for (int i = 0; i < 5; i++)
                 {
-                    attackFrames[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Sprites/Owen/Battle/Owen_Battle_Attack_{i}.png");
+                    attackFrames[i] = LoadSpriteDirect($"Assets/Sprites/Owen/Battle/Owen_Battle_Attack_{i}.png", new Vector2(0.5f, 0f), 100f);
                 }
             }
 
-            if (defendFrames == null || defendFrames.Length == 0)
+            if (defendFrames == null || defendFrames.Length == 0 || defendFrames[0] == null)
             {
                 defendFrames = new Sprite[3];
                 for (int i = 0; i < 3; i++)
                 {
-                    defendFrames[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Sprites/Owen/Battle/Owen_Battle_Defend_{i}.png");
+                    defendFrames[i] = LoadSpriteDirect($"Assets/Sprites/Owen/Battle/Owen_Battle_Defend_{i}.png", new Vector2(0.5f, 0f), 100f);
                 }
             }
 
             if (hurtSprite == null)
             {
-                hurtSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Owen/Battle/Owen_Battle_Hurt_0.png");
+                hurtSprite = LoadSpriteDirect("Assets/Sprites/Owen/Battle/Owen_Battle_Hurt_0.png", new Vector2(0.5f, 0f), 100f);
             }
 
             if (downedSprite == null)
             {
-                downedSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Owen/Battle/Owen_Battle_Downed_Kneel_0.png");
+                downedSprite = LoadSpriteDirect("Assets/Sprites/Owen/Battle/Owen_Battle_Downed_Kneel_0.png", new Vector2(0.5f, 0f), 100f);
             }
-#endif
-            if (spriteRenderer != null && spriteRenderer.sprite == null && idleFrames != null && idleFrames.Length > 0)
+
+            if (spriteRenderer != null && idleFrames != null && idleFrames.Length > 0 && idleFrames[0] != null)
             {
                 spriteRenderer.sprite = idleFrames[0];
             }
@@ -108,14 +153,14 @@ namespace DigiPurity.Combat
                 case BattleAnimState.Defend:
                     if (defendFrames != null && defendFrames.Length > 0)
                     {
-                        spriteRenderer.sprite = defendFrames[0];
+                        EnsureRenderer().sprite = defendFrames[0];
                     }
                     break;
 
                 case BattleAnimState.Downed:
                     if (downedSprite != null)
                     {
-                        spriteRenderer.sprite = downedSprite;
+                        EnsureRenderer().sprite = downedSprite;
                     }
                     break;
             }
@@ -132,7 +177,7 @@ namespace DigiPurity.Combat
                 _currentFrame = (_currentFrame + 1) % idleFrames.Length;
                 if (idleFrames[_currentFrame] != null)
                 {
-                    spriteRenderer.sprite = idleFrames[_currentFrame];
+                    EnsureRenderer().sprite = idleFrames[_currentFrame];
                 }
             }
         }
@@ -145,7 +190,7 @@ namespace DigiPurity.Combat
             _currentFrame = 0;
             if (idleFrames != null && idleFrames.Length > 0)
             {
-                spriteRenderer.sprite = idleFrames[0];
+                EnsureRenderer().sprite = idleFrames[0];
             }
         }
 
@@ -155,7 +200,7 @@ namespace DigiPurity.Combat
             _currentState = BattleAnimState.Defend;
             if (defendFrames != null && defendFrames.Length > 0)
             {
-                spriteRenderer.sprite = defendFrames[0];
+                EnsureRenderer().sprite = defendFrames[0];
             }
         }
 
@@ -170,23 +215,28 @@ namespace DigiPurity.Combat
             _currentState = BattleAnimState.Hurt;
             if (hurtSprite != null)
             {
-                spriteRenderer.sprite = hurtSprite;
+                EnsureRenderer().sprite = hurtSprite;
             }
 
-            Vector3 origin = transform.localPosition;
+            Vector3 origin = _basePosition != Vector3.zero ? _basePosition : transform.position;
             float elapsed = 0f;
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
                 float shake = Mathf.Sin(elapsed * 50f) * 0.15f * (1f - (elapsed / duration));
-                transform.localPosition = origin + new Vector3(shake, 0f, 0f);
+                transform.position = origin + new Vector3(shake, 0f, 0f);
                 yield return null;
             }
 
-            transform.localPosition = origin;
+            transform.position = origin;
             _specialAnimCoroutine = null;
             PlayIdle();
             onComplete?.Invoke();
+        }
+
+        public void PlayAttack(Action onComplete = null)
+        {
+            PlayClashAttack(0.15f, null, onComplete);
         }
 
         /// <summary>
@@ -201,22 +251,23 @@ namespace DigiPurity.Combat
         private IEnumerator ClashAttackRoutine(float holdDuration, Action onClashImpact, Action onComplete)
         {
             _currentState = BattleAnimState.Attack;
+            var sr = EnsureRenderer();
 
             if (attackFrames != null && attackFrames.Length > 0)
             {
                 // Play frame 0 and 1
-                spriteRenderer.sprite = attackFrames[0];
+                sr.sprite = attackFrames[0];
                 yield return new WaitForSeconds(0.06f);
 
                 if (attackFrames.Length > 1)
                 {
-                    spriteRenderer.sprite = attackFrames[1];
+                    sr.sprite = attackFrames[1];
                     yield return new WaitForSeconds(0.06f);
                 }
 
                 // Impact / clash held frame (frame 2)
                 int clashFrameIdx = Mathf.Min(2, attackFrames.Length - 1);
-                spriteRenderer.sprite = attackFrames[clashFrameIdx];
+                sr.sprite = attackFrames[clashFrameIdx];
 
                 onClashImpact?.Invoke();
 
@@ -226,7 +277,7 @@ namespace DigiPurity.Combat
                 // Finish swing frames
                 for (int i = clashFrameIdx + 1; i < attackFrames.Length; i++)
                 {
-                    spriteRenderer.sprite = attackFrames[i];
+                    sr.sprite = attackFrames[i];
                     yield return new WaitForSeconds(0.05f);
                 }
             }
@@ -242,7 +293,7 @@ namespace DigiPurity.Combat
             _currentState = BattleAnimState.Downed;
             if (downedSprite != null)
             {
-                spriteRenderer.sprite = downedSprite;
+                EnsureRenderer().sprite = downedSprite;
             }
         }
 

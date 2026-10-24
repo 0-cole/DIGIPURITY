@@ -29,9 +29,11 @@ namespace DigiPurity.World
         [Tooltip("Shows a subtle 'WALL' label in the Scene view.")]
         [SerializeField] private bool showLabel = true;
 
+#pragma warning disable CS0414
         [Header("Runtime Debug")]
         [Tooltip("If true, keeps gizmo visible during play mode in the Scene view for collision debugging.")]
         [SerializeField] private bool showInPlayMode = false;
+#pragma warning restore CS0414
 
         public Color FillColor { get => fillColor; set => fillColor = value; }
         public Color WireColor { get => wireColor; set => wireColor = value; }
