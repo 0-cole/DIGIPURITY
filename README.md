@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>A 2D futuristic cyber-RPG synthesizing tactical coin-clashing, real-time bullet evasion, and permanent moral polarity in a decaying digital world.</strong>
+  <strong>A 2D futuristic cyber-RPG synthesizing authentic Deltarune turn-based tactics, Undertale real-time bullet hell evasion, and permanent moral polarity in a decaying digital world.</strong>
 </p>
 
 <p align="center">
@@ -19,16 +19,16 @@
 
 ## 📖 Overview & Premise
 
-**DIGIPURITY** follows **Owen**, a pre-digital human drawn into a decomposing digital realm corrupted by unstable **"AI Slop"** entities. Navigating through decaying sectors, Owen must solve traversal puzzles, engage in hybrid card-and-evasion battles, build specialized keyword loadouts, and make a permanent ethical choice at the close of every encounter:
+**DIGIPURITY** follows **Owen**, a pre-digital human drawn into a decomposing digital realm corrupted by unstable **"AI Slop"** entities. Navigating through decaying sectors, Owen must solve traversal puzzles, engage in dynamic turn-based battles and real-time bullet hell evasion, and make a permanent ethical choice at the close of every encounter:
 
-* **[PURIFY]**: Cleanses the entity, restores sector infrastructure and world power grids, earns positive NPC dialogue, awards baseline EXP ($1.0\times$), and steers toward the **Peaceful Rest Ending**.
-* **[PURGE]**: Obliterates the code, grants **$+50\%$ bonus EXP ($1.5\times$)** and aggressive stat growth, but accelerates systemic infrastructure collapse toward the **Dying Digital World Ending**.
+* **[PURIFY]**: Cleanses the entity of algorithmic corruption, restores sector infrastructure, unlocks peaceful NPC interactions, awards baseline EXP ($1.0\times$), and steers toward the **Peaceful Rest Ending**.
+* **[PURGE]**: Lethally obliterates corrupted code, grants **$+50\%$ bonus EXP ($1.5\times$)** and aggressive stat growth, but accelerates systemic infrastructure collapse toward the **Dying Digital World Ending**.
 
 ---
 
-## ⚔️ The 4-Way Mechanical Combat Synthesis
+## ⚔️ The 3-Way Mechanical Combat Synthesis
 
-DIGIPURITY’s combat architecture synthesizes four foundational mechanical systems:
+DIGIPURITY’s combat architecture synthesizes three foundational design pillars:
 
 ```
                           ┌───────────────────────────┐
@@ -36,73 +36,50 @@ DIGIPURITY’s combat architecture synthesizes four foundational mechanical syst
                           │      COMBAT SYNTHESIS     │
                           └─────────────┬─────────────┘
                                         │
-        ┌───────────────────┬───────────┴───────────┬───────────────────┐
-        ▼                   ▼                       ▼                   ▼
-┌───────────────┐   ┌───────────────┐       ┌───────────────┐   ┌───────────────┐
-│LIMBUS COMPANY │   │   UNDERTALE   │       │   DELTARUNE   │   │  OFF (MORTIS) │
-├───────────────┤   ├───────────────┤       ├───────────────┤   ├───────────────┤
-│• Coin Flips   │   │• Bullet-Hell  │       │• Tension (TP) │   │• 4 Fixed Zones│
-│• Clashing     │   │  Evasion Box  │       │  Economy      │   │• Level Caps   │
-│• Dynamic Slots│   │• Focus Slow   │       │• Bullet Graze │   │• Encounter    │
-│• Charge Pool  │   │• invc i-frames│       │  Gain         │   │  Limits (25)  │
-└───────────────┘   └───────────────┘       └───────────────┘   └───────────────┘
+                    ┌───────────────────┼───────────────────┐
+                    ▼                   ▼                   ▼
+            ┌───────────────┐   ┌───────────────┐   ┌───────────────┐
+            │   DELTARUNE   │   │   UNDERTALE   │   │  OFF (MORTIS) │
+            ├───────────────┤   ├───────────────┤   ├───────────────┤
+            │• 4 Command HUD│   │• Bullet-Hell  │   │• Dual Endings │
+            │  (PURGE/ACT/  │   │  Evasion Box  │   │• Purge /      │
+            │   ITEM/PURIFY)│   │• Cyan SOUL    │   │  Purify Split │
+            │• Tension (TP) │   │• Bullet Graze │   │• 4 Fixed Zones│
+            │• Dynamic ACTs │   │• Focus Slow   │   │• Dying Mono-  │
+            │• Speech Barks │   │• invc i-frames│   │  logue Cutoff │
+            └───────────────┘   └───────────────┘   └───────────────┘
 ```
 
-### 1. Limbus Company — Coins, Clashing & Expanding Slots
-* **Expanding Skill Slots**: Active combat slots expand each turn ($1 \to 6$), widening tactical choices as fights escalate.
-* **Coin Clashing**: Opposing skills clash round-by-round. Total power ($\text{BasePower} + \sum \text{Heads} \times \text{CoinPower}$) determines the round winner; losers permanently lose a coin for that clash until one side breaks through for unopposed damage.
-* **Charge & Sanity Conversion**: Charge sits between **$-45$ (Drained)** and **$+45$ (Overcharged)**, directly modulating Heads probability:
-  $$P(\text{Heads}) = \text{Clamp}\left(0.50 + \frac{\text{Charge}}{100},\; 0.05,\; 0.95\right)$$
-* **Click-to-Toggle Defense**: Click any active skill slot or portrait to instantly substitute standard attack cards with `Guard`, `Evade`, or `Counter`.
+### 1. Deltarune — Turn-Based Command Menu & Tactical ACTs
+* **Authentic Command Menu**: Tactical turn options featuring **`PURGE`** (Basic attack / lethal execution), **`ACT`** (Enemy-specific interactions), **`ITEM`** (Recovery & utility), and **`PURIFY`** (Peaceful resonance cleansing).
+* **Tension Points (TP)**: Internal energy pool displayed from $0\text{--}100\%$, generated by defending and grazing bullets to power specialized abilities.
+* **Dynamic ACT Submenus**: Interact with encounters meaningfully through context-sensitive actions (e.g., *Check*, *Analyze Swing*, *Compliment*) to build Purify resonance without dealing lethal damage.
+* **Dynamic Audio Degradation & Forgiveness**: Battle BGM dynamically slows down, distorts, and low-passes as the enemy takes damage; choosing positive ACTs forgives Owen and restores music fidelity in real time.
 
-### 2. Undertale — Real-Time Bullet Evasion
-* When enemy attacks go uncontested or break through Owen's clashes, the game transitions into a real-time bounded bullet-hell arena.
-* Move Owen’s Soul with precision focus slowing ($50\%$ speed on `Shift` / `X`) and invulnerability frame safeguards (`invc`).
+### 2. Undertale — Real-Time Bullet Evasion Arena
+* **Central Dodge Arena (`BattleDodgeBox`)**: During enemy turns, combat shifts into a bounded bullet-hell arena with an initial **0.85-second reaction grace period** before projectile waves spawn.
+* **Cyan SOUL Movement**: Full 2D precision dodging with focus slowing (`Shift` / `X`) and invulnerability frames (`invc`).
+* **Bullet Grazing**: Brushing close to projectiles without taking damage rewards immediate Tension Points (TP).
 
-### 3. Deltarune — Tension Points (TP) & Grazing
-* **Tension Points (TP)**: Internal pool of $0\text{–}250$ displayed as $0\text{–}100\%$.
-* Generated by choosing to Defend ($+40\text{ TP} / 16\%$) and **Grazing** bullets inside the dodge box within close proximity without taking damage.
-* Spent strategically to fuel high-tier skills and amplify Charge.
-
-### 4. OFF (Mortis Ghost) — Strict Zones & Competence Progression
-* **4 Main Cyber Zones** with strict encounter caps ($25$ max encounters per zone) to prevent mindless grinding.
-* **Zonal Level Caps**:
-  * Zone 1: Level **25**
-  * Zone 2: Level **50**
-  * Zone 3: Level **75**
-  * Zone 4: Level **100**
-
----
-
-## 🧬 Status Keywords & Hybrid Fusions
-
-| Keyword | Mechanical Behavior |
-| :--- | :--- |
-| **Burn** | Inflicts fixed turn-end damage equal to Potency; Count decreases by 1. |
-| **Bleed** | Inflicts fixed damage equal to Potency whenever an attack coin is flipped; Count decays by 1. |
-| **Poise** | Grants a Potency% chance to deal critical strike damage on hit; Count decays on crit. |
-| **Drainage** | Directly drains the target's Charge pool, tanking their coin flip probabilities. |
-| **Stutter / Glitch** | Stutter elevates the Glitch Threshold. When $\text{HP} \le \text{Threshold}$, targets enter the **Glitched State**, freezing up and skipping their turn. |
-
-### ⚡ 4 Rare Hybrid Fusions
-Equipping dual **Resonance Core** items fuses base keywords into devastating hybrid effects:
-1. **Burn + Stutter $\to$ `StutterScorch`**: Turn-end burn damage accelerates glitch threshold elevation.
-2. **Poise + Bleed $\to$ `CrimsonLacerate`**: Critical coin flips inflict double bleed damage.
-3. **Drainage + Stutter $\to$ `StaticSeizure`**: Draining enemy Charge elevates their Glitch threshold by the drained amount.
-4. **Burn + Poise $\to$ `CobaltCombustion` (Blue Burn)**: Consumes Poise count at turn end to unleash **$1.5\times$ Critical Burn damage**.
+### 3. OFF (Mortis Ghost) — Moral Polarity & Environmental Finality
+* **The Purge / Purify Dichotomy**: Every corrupted entity represents a permanent choice:
+  * **Purify (Resonance Cleansing)**: Cleanses the entity's mind, producing a radiant white light burst and leaving them alive as a friendly overworld NPC.
+  * **Purge (Lethal Deletion)**: At 0 HP, enemies become exhausted and helpless. Confirming PURGE triggers a dramatic **8-step dying monologue** that abruptly cuts off mid-sentence (*"I forgive you, O-"*) into an intense cyber-spark implosion.
+* **4 Distinct Cyber Zones**: Structured regional progression with strict encounter limits ($25$ max per zone) and zonal level caps ($25 / 50 / 75 / 100$).
 
 ---
 
 ## 🎮 Overworld Controls & Exploration
 
-Owen explores cyber sectors with authentic Deltarune/Undertale-style movement physics:
+Owen explores cyber sectors with authentic Deltarune/Undertale-style movement physics and Toby Fox room containment:
 
 | Action | Key / Input | Notes |
 | :--- | :--- | :--- |
 | **Move** | `W`, `A`, `S`, `D` or Arrow Keys | 4-directional movement with smart diagonal facing retention |
 | **Diagonal Move** | Any 2 directional inputs | **$1.5\times$ speed multiplier** with accelerated step cadence |
 | **Run / Sprint** | Hold `Left Shift`, `Right Shift`, or `X` | $1.6\times$ run multiplier ($2.4\times$ combined diagonal sprint) |
-| **Inspect / Interact** | `Z` / `Enter` | Trigger dialogues, examine terminals, engage encounters |
+| **Confirm / Interact** | `Z` / `Enter` | Trigger dialogues, examine terminals, engage encounters |
+| **Cancel / Focus** | `X` / `Shift` | Cancel menus in battle, focus slow inside the dodge box |
 
 ---
 
@@ -112,17 +89,23 @@ Owen explores cyber sectors with authentic Deltarune/Undertale-style movement ph
 DIGIPURITY/
 ├── Assets/
 │   ├── Animations/               # Overworld controller animator graphs
+│   ├── Audio/                    # Exploration BGM, battle tracks, voice typewriter blips
+│   ├── Data/Enemies/             # Modular EnemyData ScriptableObjects (Golfer, barks, ACTs)
+│   ├── Fonts/                    # Undertale 8-bit battle and VCR OSD retro fonts
 │   ├── Scenes/
-│   │   └── SampleScene.unity     # Overworld test arena with WalkableSquare clamping
+│   │   ├── SampleScene.unity     # Overworld exploration arena with RoomBounds containment
+│   │   └── TestScene.unity       # Integrated overworld + deep void BattleStage arena
 │   ├── Scripts/
-│   │   ├── Combat/               # Coin clash resolver, deck manager, soul logic, keywords
-│   │   ├── Core/                 # JSON save system, prologue tutorial onboarding
-│   │   └── World/                # OverworldPlayerController with 1.5x diagonal physics
+│   │   ├── Combat/               # BattleStageController, dodge box, enemy/Owen animators
+│   │   ├── Core/                 # JSON save system, retro font manager, onboarding
+│   │   └── World/                # OverworldPlayerController, RoomCameraController, doors
 │   ├── Sprites/
-│   │   ├── Environment/          # Walkable squares and room boundaries
-│   │   └── Owen/                 # 27 directional walk/idle sprites & Scythe battle sheets
+│   │   ├── Combat/               # CyanSoul, icons (Purge, Act, Item, Purify), portraits
+│   │   ├── Environment/          # Walkable floors, tile sheets, room boundaries
+│   │   ├── Golfer/               # Overworld enemy sprite assets
+│   │   └── Owen/                 # 47 directional walk/idle sprites & Scythe battle sheets
 │   └── Tests/
-│       └── EditMode/             # NUnit test suites for combat, keywords, and movement
+│       └── EditMode/             # NUnit test suites (wrapped in #if UNITY_EDITOR)
 ├── LibreSprite_Files/            # Raw Aseprite master project & layer source files
 ├── ProjectSettings/              # Unity 6000.6.0f1 URP 2D engine configuration
 └── README.md
@@ -132,17 +115,18 @@ DIGIPURITY/
 
 ## 🧪 Automated Test Suite
 
-DIGIPURITY maintains full EditMode unit test coverage in `Assets/Tests/EditMode/`:
-* `CombatSystemTests.cs`: Coin clash math, Charge probabilities, and Soul movement speed halving.
+DIGIPURITY maintains comprehensive EditMode unit test coverage in `Assets/Tests/EditMode/`:
+* `OverworldEnemyAgroTests.cs`: Continuous pursuit acceleration, forward-facing flip calculation, and diagonal sprint speed comparison.
+* `RoomCameraTests.cs`: Undertale 4:3 orthographic clamping and viewport boundaries.
+* `AreaDoorTests.cs`: Doorway ID pairing, arrival coordinates, and Deltarune 1-in-50 Secret Egg Room chance.
+* `EnemyDataEncounterTests.cs`: Data-driven enemy stats, ACT options, and Purify reward scaling.
+* `CombatSystemTests.cs`: Bullet hell evasion box bounds, grazing radii, and soul movement halving.
 * `OverworldMovementTests.cs`: Cardinal speed ($1.0\times$), diagonal speed ($1.5\times$), and diagonal sprint ($2.4\times$).
-* `DefenseSkillSwapTests.cs`: Tap-to-swap defense skill mechanics.
-* `HybridCombatTests.cs` & `HybridKeywordCombinationTests.cs`: Resonance Core detection and keyword triggers.
-* `KeywordAndLevelProgressionTests.cs`: Purge $1.5\times$ EXP math and zonal level cap enforcement.
 
 ---
 
 ## 👤 Author & Credits
 
 * **Lead Developer & Designer**: **Cole Blair** ([@0-cole](https://github.com/0-cole))
-* **Framework**: Unity 6000.6.0f1 (Universal 2D)
-* **Inspired By**: *Limbus Company* (Project Moon), *Undertale* / *Deltarune* (Toby Fox), and *OFF* (Mortis Ghost).
+* **Framework**: Unity 6000.6.0f1 (Universal Render Pipeline 2D)
+* **Inspired By**: *Deltarune* & *Undertale* (Toby Fox), *OFF* (Mortis Ghost).

@@ -34,14 +34,7 @@ namespace DigiPurity.World
         private static Font _cachedFont;
         private static bool _signEverDismissed = false;
 
-        public static Font GetUndertaleFont()
-        {
-            if (_cachedFont != null) return _cachedFont;
-#if UNITY_EDITOR
-            _cachedFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/HachicroUndertaleBattleFontRegular-L3zlg.ttf");
-#endif
-            return _cachedFont;
-        }
+        public static Font GetUndertaleFont() { if (_cachedFont != null) return _cachedFont; _cachedFont = DigiPurity.Core.GameFonts.SignFont; return _cachedFont; }
 
         private void Awake()
         {
@@ -131,24 +124,51 @@ namespace DigiPurity.World
         {
             _glitchFrames = new Sprite[4];
 
-            string basePath = Application.dataPath + "/Sprites/World/";
+#if UNITY_EDITOR
             for (int i = 0; i < 4; i++)
             {
-                string p = basePath + $"Lucas_Sign_{i}.png";
-                if (File.Exists(p))
-                {
-                    _glitchFrames[i] = LoadSpriteDirect(p, 32f);
-                }
+                Sprite asset = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Sprites/World/Lucas_Sign_{i}.png");
+                if (asset != null) _glitchFrames[i] = asset;
             }
-
-            // Fallback to Lucas_Sign.png if individual numbered frames not found
             if (_glitchFrames[0] == null)
             {
-                string mainP = basePath + "Lucas_Sign.png";
-                if (File.Exists(mainP))
+                Sprite mainAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/World/Lucas_Sign.png");
+                if (mainAsset != null)
                 {
-                    Sprite s = LoadSpriteDirect(mainP, 32f);
-                    for (int i = 0; i < 4; i++) _glitchFrames[i] = s;
+                    for (int i = 0; i < 4; i++) _glitchFrames[i] = mainAsset;
+                }
+            }
+#endif
+
+            if (_glitchFrames[0] == null)
+            {
+                string[] possibleDirs = new string[]
+                {
+                    Application.dataPath + "/Sprites/World/",
+                    System.IO.Path.Combine(Application.dataPath, "..", "Assets/Sprites/World/"),
+                    System.IO.Path.Combine(Application.dataPath, "Sprites/")
+                };
+
+                foreach (string dir in possibleDirs)
+                {
+                    if (System.IO.Directory.Exists(dir))
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            string p = System.IO.Path.Combine(dir, $"Lucas_Sign_{i}.png");
+                            if (File.Exists(p)) _glitchFrames[i] = LoadSpriteDirect(p, 32f);
+                        }
+                        if (_glitchFrames[0] == null)
+                        {
+                            string mainP = System.IO.Path.Combine(dir, "Lucas_Sign.png");
+                            if (File.Exists(mainP))
+                            {
+                                Sprite s = LoadSpriteDirect(mainP, 32f);
+                                for (int i = 0; i < 4; i++) _glitchFrames[i] = s;
+                            }
+                        }
+                        if (_glitchFrames[0] != null) break;
+                    }
                 }
             }
 

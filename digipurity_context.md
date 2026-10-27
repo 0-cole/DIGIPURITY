@@ -1,6 +1,6 @@
 # DIGIPURITY — Master Project Context & Agent Development Guide
 
-**Last Updated**: 2026-10-23  
+**Last Updated**: 2026-10-26  
 **Project Root**: `C:\Users\cdbla\Documents\GitHub\DIGIPURITY`  
 **Git Remote**: `git@github.com:0-cole/DIGIPURITY.git` (`main` branch)  
 **Engine**: Unity `6000.6.0f1` (Universal 2D / URP)  
@@ -45,6 +45,25 @@ At the conclusion of every battle, the player faces a pivotal choice:
 ### 1.5 The Human-Crafted Creative Invariant (Placeholders vs. Final Assets)
 - **Authentic Human Art & Music**: Because **DIGIPURITY** is fundamentally a critique of generative AI replacing human expression, **all final creative assets (music, sprites, artwork) must be genuinely human-made** by the developer and human collaborators.
 - **Role of AI-Generated Non-Code Assets**: Any non-code asset generated during development (such as the BeepBox JSON battle theme or extrapolated sprite frames) is strictly a **temporary placeholder / greybox prototype** or a technical study reference, and will be replaced with human-crafted assets. Always build audio/visual systems so custom human-made `.ogg`/`.wav` tracks and `.ase`/`.png` sprites can be swapped in effortlessly.
+
+---
+
+### 1.6 Core Mechanics & Entities Quick-Reference Table (Fast Lookup for Agents)
+When requested to inspect, tweak, or bugfix any game system, jump directly to the target C# script listed below. **Do NOT parse .unity scene YAML files or inspect raw image pixels.**
+
+| Concept / Entity | Primary Script Path | Purpose & Key Variables |
+| :--- | :--- | :--- |
+| **Golfer / Overworld Enemies** | [Assets/Scripts/Combat/OverworldEnemy.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/OverworldEnemy.cs) | Overworld agro, sight radius, pursuit speed (rushSpeed, rushAcceleration, maxRushSpeed), sprite facing flip (CalculateFacingFlip), encounter transition. |
+| **Enemy Data & Stats** | [Assets/Scripts/Combat/EnemyData.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/EnemyData.cs) | ScriptableObject defining enemy HP, Stagger, coins, dialogue barks, TALK options, and attack patterns (Golfer_Data.asset). |
+| **Owen Movement & Overworld** | [Assets/Scripts/Overworld/OverworldPlayerController.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Overworld/OverworldPlayerController.cs) | Owen's 8-way overworld movement, sprint multiplier (1.5x), collision raycasting, directional walk animations. |
+| **Battle Stage & Flow** | [Assets/Scripts/Combat/BattleStageController.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/BattleStageController.cs) | 3rd-person side-by-side battle manager: menu states, command selection (FIGHT/PURGE, TALK/ACT, ITEM, PURIFY), clash sequence, music pitch/distortion DSP. |
+| **Coin Clash Math** | [Assets/Scripts/Combat/CoinClashResolver.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/CoinClashResolver.cs) | Limbus coin spinning, heads probability from Charge, clash resolution, coin breakage, proportional damage. |
+| **Dodge Box & Soul (Bullet Hell)** | [Assets/Scripts/Combat/BattleDodgeBox.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/BattleDodgeBox.cs)<br>[Assets/Scripts/Combat/SoulController.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/SoulController.cs) | Undertale central dodge arena, soul movement, bullet collision, graze detection, TP generation. |
+| **Doors & Transitions** | [Assets/Scripts/World/AreaDoor.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/AreaDoor.cs) | 2-way paired door transitions, spawn offsets, and 1-in-50 (2%) secret room diversion. |
+| **Camera & Viewport** | [Assets/Scripts/World/RoomCameraController.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/RoomCameraController.cs) | 4:3 fixed orthographic camera (size = 9.0f), torso centering, room boundary clamping, letterbox/pillarbox bars. |
+| **Invisible Solid Walls** | [Assets/Scripts/World/InvisibleWall.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/InvisibleWall.cs) | Toby Fox static solid wall collider (obj_solid) using BoxCollider2D. |
+| **Spared Golfer NPC** | [Assets/Scripts/World/PurifiedGolferNPC.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/PurifiedGolferNPC.cs) | Overworld friendly NPC dialogue typewriter, text advance, character voice blips (snd_txt_golfer.wav). |
+| **Screen Transitions & Fades** | [Assets/Scripts/World/ScreenFader.cs](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/ScreenFader.cs) | Full-screen fade in/out for room doors and battle transitions. |
 
 ---
 
@@ -240,7 +259,7 @@ At the conclusion of every battle, the player faces a pivotal choice:
 | [`Assets/Scripts/World/Editor/RoomBoundsEditor.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/RoomBoundsEditor.cs) | Room connection inspector displaying connected overlapping rooms and a 1-click button to strip floor-level colliders for open doorways. |
 | [`Assets/Scripts/World/Editor/WorldEditorTools.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/World/Editor/WorldEditorTools.cs) | 1-click Unity menu items: `Rebuild Clean WalkableSquare`, `Room Floor (Sprite + RoomBounds)`, `Solid Wall (Undertale obj_solid)`, `NPC Creature (Solid)`, `Spawn Golfer Battle Encounter (Overworld + Stage)`, `Room Trigger`, `Area Door`, `Egg Door`. |
 | [`Assets/Scripts/Combat/EnemyData.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/EnemyData.cs) | Modular ScriptableObject profile for ANY enemy encounter: name, overworld/battle/hurt/bullet sprites, stats, in-battle speech barks, custom Deltarune TALK/ACT options (with TP/Charge rewards), and bullet patterns (`RainFromTop`, `AimedSpreadBurst`, `AlternatingSide`, `RadialSpiral`). |
-| [`Assets/Scripts/Combat/OverworldEnemy.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/OverworldEnemy.cs) | Universal overworld enemy component. Drag-and-drop onto ANY enemy GameObject; features agro on sight (`sightRadius`, `rushSpeed`), rushes toward Owen to initiate combat, executes 3-blink screen & chest cyan soul alert, and passes `EnemyData` into battle. |
+| [`Assets/Scripts/Combat/OverworldEnemy.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/OverworldEnemy.cs) | Universal overworld enemy component. Drag-and-drop onto ANY enemy GameObject; features agro on sight (`sightRadius`), continuous speed acceleration (`rushSpeed` = 4.0 u/s, `rushAcceleration` = 7.5 u/s², `maxRushSpeed` = 13.5 u/s outrunning Owen's 10.8 u/s max diagonal sprint), corrected sprite facing for left-facing native sprites (`spriteFacesLeftByDefault`, `CalculateFacingFlip`), rushes toward Owen to initiate combat, executes 3-blink screen & chest cyan soul alert, and passes `EnemyData` into battle. |
 | [`Assets/Scripts/Combat/EnemyBattleAnimator.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/EnemyBattleAnimator.cs) | Universal 3rd-person enemy battle animator: unlit URP 2D shader (`Universal Render Pipeline/2D/Sprite-Unlit-Default`), procedural sine bob, hurt vibration, white light explosion on Purify (`PlayPurifyWhiteLightExplosion`: radiant ascent, expansion dissolve, 48 ascending white/gold/cyan particles), and cyber spark implosion on Purge (`PlayPurgeImplosion`: torso-anchored, horizontal slice jitter, singularity collapse, 38 multi-color sparks). |
 | [`Assets/Scripts/Combat/BattleStageController.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/BattleStageController.cs) | Pure Deltarune 3rd-person turn-based battle engine isolated in deep void `(1000, 1000, 0)`: command selection (`PURGE`, `ACT`, `ITEM`, `PURIFY`), dynamic audio slowdown & distortion with positive ACT forgiveness recovery, 0 HP Purge Marker execution, helpless 1.5s calm dodge box when enemy is at 0 HP, tutorial anti-spam debounce, authentic Deltarune OnGUI HUD with prominent 18px text and zero clipping, dynamic ACT submenu, combatant scaling (Owen 0.85, Golfer tripled to 4.35 on shared ground line $Y = 998.8\text{f}$), direct disk asset loaders, and resilient auto-provisioning via `EnsureBattleStageExists()`. |
 | [`Assets/Scripts/Combat/OverworldBattleTrigger.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Scripts/Combat/OverworldBattleTrigger.cs) | Overworld trigger on Golfer sprite: locks player input, screen blackout, 3-blink cyan soul alert over Owen's chest, smooth fade-in to battle. |
@@ -318,6 +337,7 @@ At the conclusion of every battle, the player faces a pivotal choice:
 | `Assets/Fonts/HachicroUndertaleBattleFontRegular-L3zlg.ttf` | Undertale battle font strictly reserved for the Lucas Sign at spawn per user mandate. |
 
 ### 6.6 EditMode Test Suites (`Assets/Tests/EditMode/`)
+- [`OverworldEnemyAgroTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/OverworldEnemyAgroTests.cs) (Verifies enemy sprite facing direction calculation preventing Golfer from turning backwards when charging, acceleration speed ramping up to maxRushSpeed, and top speed exceeding Owen's maximum possible diagonal running speed)
 - [`EnemyDataEncounterTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/EnemyDataEncounterTests.cs) (Validates `EnemyData` ScriptableObject profile, in-battle speech barks, TALK options, and TP/Charge reward processing)
 - [`ProportionalClashDamageTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/ProportionalClashDamageTests.cs) (Proportional damage ratio $\frac{\text{Heads Rolled}}{\text{Total Coins}}$, partial clash mitigation, full clash damage)
 - [`InvisibleWallTests.cs`](file:///C:/Users/cdbla/Documents/GitHub/DIGIPURITY/Assets/Tests/EditMode/InvisibleWallTests.cs)
@@ -367,14 +387,26 @@ At the conclusion of every battle, the player faces a pivotal choice:
 
 ---
 
+| **2026-10-26** | **Golfer Overworld Agro Acceleration & Forward Facing Fix**: <br>1. **Sprite Facing Correction (`CalculateFacingFlip`)**: Fixed inverted horizontal sprite flipping in `OverworldEnemy.cs` where `spriteRenderer.flipX = toPlayer.x < 0f;` assumed a native right-facing sprite. Because `Golfer.png` natively faces LEFT, when Owen approached from the left (`toPlayer.x < 0`), Golfer set `flipX = true` and literally turned his back to Owen, moonwalking backwards into the player. Added `spriteFacesLeftByDefault` and static `CalculateFacingFlip()`, ensuring Golfer charges forward looking directly at Owen without turning around. <br>2. **Continuous Pursuit Acceleration**: Replaced static 3.8 u/s pursuit with continuous acceleration (`rushSpeed` = 4.0 u/s, `rushAcceleration` = 7.5 u/s², `maxRushSpeed` = 13.5 u/s). While Owen's max sprint speed is 7.2 u/s (10.8 u/s diagonal), Golfer accelerates past Owen within ~1 second and caps at 13.5 u/s, preventing the player from trivially outrunning him in the overworld. Added frame-tunneling guard `dist <= step || dist <= stopDistance` for reliable encounter triggers at high speed. <br>3. **Unit Test Suite**: Added `OverworldEnemyAgroTests.cs` verifying facing flip states for left/right native sprites, acceleration ramping up to max speed cap, and assertion that `maxRushSpeed` is strictly greater than Owen's maximum possible diagonal running speed. |
+
+---
+
+| **2026-10-27** | **Public README Modernization (Purged Limbus Mechanics) & Lucas Sign Build Resilience**: <br>1. **README Bio Modernization**: Replaced deprecated Limbus Company coin-clashing and expanding card slot descriptions with the authentic **Deltarune × Undertale × OFF** 3-way combat synthesis. Accurately documented Deltarune turn-based HUD (PURGE, ACT, ITEM, PURIFY), dynamic ACT barks, audio distortion degradation/forgiveness, Undertale cyan SOUL evasion arena with 0.85s grace period, and OFF moral polarity (8-step dying monologue cut-off vs white light purification). <br>2. **Lucas Sign Build Asset Resilience (LucasSign.cs)**: Unified font loading to use GameFonts.SignFont (avoiding missing font errors in standalone players), added editor AssetDatabase sprite resolution, and expanded standalone file search paths with procedural fallback so the threshold lore sign operates reliably across editor and compiled builds. |
+
+---
+
 ## 8. Immediate Next Steps for Next Agent
 
-1. **Build Standalone Player (File -> Build Settings -> Build)**:
+1. **Test Golfer Overworld Pursuit in Unity Play Mode**:
+   - Press **Play** in Unity.
+   - Walk Owen into Room 2 where Golfer stands.
+   - Observe Golfer when entering sight radius:
+     - Verify Golfer **does NOT turn around** or face backwards when he spots Owen—he charges forward looking straight at Owen.
+     - Try running away from Golfer holding Shift and moving diagonally: observe Golfer smoothly accelerating up to 13.5 u/s and catching Owen so you cannot outrun him.
+     - When Golfer catches Owen, verify the cyan soul 3-blink alert triggers cleanly and transitions to battle.
+2. **Build Standalone Player (File -> Build Settings -> Build)**:
    - Select Windows x64 Standalone.
-   - Click **Build** to verify that `UnityLinker.exe` completes cleanly with **Build result: Succeeded** and zero `nunit.framework` missing assembly errors.
-2. **Test in Unity Play Mode / Standalone Executable**:
-   - Launch the game.
-   - **Encounter Golfer**: Walk into Golfer in the overworld to initiate combat. Verify overworld BGM stops cleanly and `Battle_Beta` starts without audio clash.
+   - Click **Build** to verify that `UnityLinker.exe` completes cleanly with **Build result: Succeeded** and zero missing assembly errors.
    - **Verify Strict PURIFY (No Mercy)**:
      - Select `[ACT]` -> `Golf Tips` or `Compliment`. Verify the response text says only `(Purify +50%)` with zero mention of "Mercy".
    - **Verify Elevated Bullet Hell Box**:

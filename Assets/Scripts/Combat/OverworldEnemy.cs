@@ -16,8 +16,19 @@ namespace DigiPurity.Combat
         [Tooltip("Whether this enemy notices Owen and rushes toward him when he gets close.")]
         [SerializeField] private bool agroOnSight = true;
         [SerializeField] private float sightRadius = 4.5f;
-        [SerializeField] private float rushSpeed = 3.8f;
-        [SerializeField] private float stopDistance = 0.5f;
+        [Tooltip("Initial rush speed when the enemy first spots Owen.")]
+        [SerializeField] private float rushSpeed = 4.0f;
+        [Tooltip("Acceleration rate in units/sec² while pursuing Owen so the enemy ramps up speed.")]
+        [SerializeField] private float rushAcceleration = 7.5f;
+        [Tooltip("Maximum pursuit speed cap, strictly faster than Owen's diagonal sprint (10.8) so the player cannot escape.")]
+        [SerializeField] private float maxRushSpeed = 13.5f;
+        [SerializeField] private float stopDistance = 0.8f;
+
+        [Header("Sprite Facing")]
+        [Tooltip("If true, the sprite faces the player during pursuit. If false, spriteRenderer.flipX is left untouched.")]
+        [SerializeField] private bool facePlayerOnRush = true;
+        [Tooltip("True if the base sprite natively faces Left (e.g. Golfer). False if it natively faces Right.")]
+        [SerializeField] private bool spriteFacesLeftByDefault = true;
 
         [Header("Visuals")]
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -26,9 +37,17 @@ namespace DigiPurity.Combat
         private OverworldPlayerController _playerTarget;
         private Vector3 _startPosition;
         private bool _isRushing = false;
+        private float _currentRushSpeed = 0f;
         private bool _isEncounterTriggered = false;
 
         public EnemyData Data => enemyData;
+        public float CurrentRushSpeed => _currentRushSpeed;
+        public float InitialRushSpeed { get => rushSpeed; set => rushSpeed = value; }
+        public float RushAcceleration { get => rushAcceleration; set => rushAcceleration = value; }
+        public float MaxRushSpeed { get => maxRushSpeed; set => maxRushSpeed = value; }
+        public bool IsRushing => _isRushing;
+        public bool FacePlayerOnRush { get => facePlayerOnRush; set => facePlayerOnRush = value; }
+        public bool SpriteFacesLeftByDefault { get => spriteFacesLeftByDefault; set => spriteFacesLeftByDefault = value; }
 
         private void Awake()
         {
@@ -87,6 +106,28 @@ namespace DigiPurity.Combat
             _playerTarget = FindAnyObjectByType<OverworldPlayerController>();
         }
 
+        /// <summary>
+        /// Calculates whether spriteRenderer.flipX should be true or false to face toward the target.
+        /// </summary>
+        public static bool CalculateFacingFlip(Vector2 toPlayer, bool spriteFacesLeftByDefault)
+        {
+            // If sprite faces left natively (like Golfer):
+            // - Player is to the left (toPlayer.x < 0) => flipX = false (faces left, toward player)
+            // - Player is to the right (toPlayer.x > 0) => flipX = true (faces right, toward player)
+            // If sprite faces right natively:
+            // - Player is to the left (toPlayer.x < 0) => flipX = true (faces left, toward player)
+            // - Player is to the right (toPlayer.x > 0) => flipX = false (faces right, toward player)
+            return spriteFacesLeftByDefault ? (toPlayer.x > 0f) : (toPlayer.x < 0f);
+        }
+
+        /// <summary>
+        /// Calculates accelerated rush speed capped at maxSpeed.
+        /// </summary>
+        public static float CalculateAcceleratedSpeed(float currentSpeed, float acceleration, float maxSpeed, float deltaTime)
+        {
+            return Mathf.Min(currentSpeed + acceleration * deltaTime, maxSpeed);
+        }
+
         private void Update()
         {
             if (_isEncounterTriggered || !agroOnSight || _playerTarget == null) return;
@@ -100,22 +141,26 @@ namespace DigiPurity.Combat
             if (!_isRushing && dist <= sightRadius)
             {
                 _isRushing = true;
+                _currentRushSpeed = rushSpeed;
             }
 
-            // 2. Rush towards Player
+            // 2. Rush towards Player with continuous acceleration
             if (_isRushing)
             {
-                Vector3 toPlayer = (_playerTarget.transform.position - transform.position).normalized;
-                transform.position += toPlayer * rushSpeed * Time.deltaTime;
+                _currentRushSpeed = CalculateAcceleratedSpeed(_currentRushSpeed, rushAcceleration, maxRushSpeed, Time.deltaTime);
 
-                // Flip sprite to face player
-                if (spriteRenderer != null)
+                Vector3 toPlayer = (_playerTarget.transform.position - transform.position).normalized;
+                float step = _currentRushSpeed * Time.deltaTime;
+                transform.position += toPlayer * step;
+
+                // Face the player so Golfer doesn't turn around and run backwards
+                if (facePlayerOnRush && spriteRenderer != null && Mathf.Abs(toPlayer.x) > 0.05f)
                 {
-                    spriteRenderer.flipX = toPlayer.x < 0f;
+                    spriteRenderer.flipX = CalculateFacingFlip(toPlayer, spriteFacesLeftByDefault);
                 }
 
-                // If touching distance
-                if (dist <= stopDistance)
+                // If touching distance or overshooting in this frame
+                if (dist <= stopDistance || dist <= step)
                 {
                     TriggerEncounter(_playerTarget);
                 }
@@ -149,6 +194,7 @@ namespace DigiPurity.Combat
             if (_isEncounterTriggered) return;
             _isEncounterTriggered = true;
             _isRushing = false;
+            _currentRushSpeed = 0f;
 
             StartCoroutine(EncounterTransitionRoutine(player));
         }
