@@ -391,7 +391,7 @@ When requested to inspect, tweak, or bugfix any game system, jump directly to th
 
 ---
 
-| **2026-10-27** | **Public README Modernization (Purged Limbus Mechanics) & Lucas Sign Build Resilience**: <br>1. **README Bio Modernization**: Replaced deprecated Limbus Company coin-clashing and expanding card slot descriptions with the authentic **Deltarune × Undertale × OFF** 3-way combat synthesis. Accurately documented Deltarune turn-based HUD (PURGE, ACT, ITEM, PURIFY), dynamic ACT barks, audio distortion degradation/forgiveness, Undertale cyan SOUL evasion arena with 0.85s grace period, and OFF moral polarity (8-step dying monologue cut-off vs white light purification). <br>2. **Lucas Sign Build Asset Resilience (LucasSign.cs)**: Unified font loading to use GameFonts.SignFont (avoiding missing font errors in standalone players), added editor AssetDatabase sprite resolution, and expanded standalone file search paths with procedural fallback so the threshold lore sign operates reliably across editor and compiled builds. |
+| **2026-10-27** | **Public README Modernization (Purged Limbus Mechanics) & Lucas Sign Build Resilience**: <br>1. **README Removal**: Removed README.md completely per user request so the repository has no public bio/readme. <br>2. **Lucas Sign Build Asset Resilience (LucasSign.cs)**: Unified font loading to use GameFonts.SignFont (avoiding missing font errors in standalone players), added editor AssetDatabase sprite resolution, and expanded standalone file search paths with procedural fallback so the threshold lore sign operates reliably across editor and compiled builds. |
 
 ---
 
