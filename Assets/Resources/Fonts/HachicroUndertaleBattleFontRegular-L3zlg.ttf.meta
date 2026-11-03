@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f5088d7e0851485e9fd74e5fa2e6da0b
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureHasAlpha: 0
+  fontFilterMode: 0
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  characterRects: []
+  kerningValues: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant:
