@@ -995,11 +995,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DigiPurity.Combat.GolferBattleAnimator
   spriteRenderer: {fileID: 0}
-  idleSprite: {fileID: 21300000, guid: 5cb3f7bb0a21434297b9f3d4f44732f9, type: 3}
+  idleSprite: {fileID: 21300000, guid: 8b53da6ff12549888af19fa1199d8ceb, type: 3}
   hurtSprite: {fileID: 0}
   bobFrequency: 2.5
   bobAmplitude: 0.12
-  defaultGolferSprite: {fileID: 21300000, guid: 5cb3f7bb0a21434297b9f3d4f44732f9, type: 3}
+  defaultGolferSprite: {fileID: 21300000, guid: 8b53da6ff12549888af19fa1199d8ceb, type: 3}
 --- !u!1 &1172072699
 GameObject:
   m_ObjectHideFlags: 0

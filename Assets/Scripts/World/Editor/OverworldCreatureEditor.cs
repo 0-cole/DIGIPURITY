@@ -164,6 +164,39 @@ namespace DigiPurity.World.Editor
             EditorGUILayout.PropertyField(_encounterModeProp);
             if (_encounterModeProp.enumValueIndex != (int)OverworldCreature.EncounterMode.SolidObstacleOnly)
             {
+                var encounterCfg = creature.GetComponent<DigiPurity.Combat.BattleEncounterConfig>();
+                if (encounterCfg == null)
+                {
+                    EditorGUILayout.HelpBox(
+                        "Click below to add the Modular Battle Encounter Config component directly to this enemy (lets you edit Number of Enemies, Boss/Basic type, Golfer Attack Presets, Custom Attacks, HP, Conditional Dialogue, Sprites, ACTs, Purify Thresholds & Songs right below in this Inspector).",
+                        MessageType.Info);
+                    GUI.backgroundColor = new Color(0.25f, 0.85f, 0.45f);
+                    var buttonStyle = new GUIStyle(GUI.skin.button)
+                    {
+                        wordWrap = true,
+                        fontSize = 12,
+                        fontStyle = FontStyle.Bold,
+                        alignment = TextAnchor.MiddleCenter,
+                        padding = new RectOffset(8, 8, 8, 8)
+                    };
+                    string buttonText = "+ Add Modular Battle Encounter Config\n(Edit All Battle Settings)";
+                    float contentHeight = buttonStyle.CalcHeight(new GUIContent(buttonText), EditorGUIUtility.currentViewWidth - 40f);
+                    if (GUILayout.Button(buttonText, buttonStyle, GUILayout.Height(Mathf.Max(56f, contentHeight + 12f))))
+                    {
+                        var added = Undo.AddComponent<DigiPurity.Combat.BattleEncounterConfig>(creature.gameObject);
+                        added.ApplyGolferBaselineToAllSlots();
+                        EditorUtility.SetDirty(creature.gameObject);
+                    }
+                    GUI.backgroundColor = Color.white;
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox(
+                        "✓ Modular Battle Encounter Config is attached! Scroll down below in this Inspector to edit Enemies [1..N], Attack Patterns, HP, Dialogue, Sprites, ACTs & Songs.",
+                        MessageType.None);
+                }
+
+                EditorGUILayout.Space(4);
                 EditorGUILayout.PropertyField(_battleSceneOrIdProp);
                 EditorGUILayout.PropertyField(_encounterCooldownProp);
                 EditorGUILayout.PropertyField(_onPlayerTouchProp);

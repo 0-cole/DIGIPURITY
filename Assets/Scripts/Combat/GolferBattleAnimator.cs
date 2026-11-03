@@ -17,10 +17,10 @@ namespace DigiPurity.Combat
         {
             if (defaultGolferSprite == null)
             {
-                defaultGolferSprite = OwenBattleAnimator.LoadSpriteDirect("Assets/Sprites/Golfer/Golfer_256.png", new Vector2(0.5f, 0f), 100f);
+                defaultGolferSprite = OwenBattleAnimator.LoadSpriteDirect("Assets/Sprites/Golfer/Golfer.png", new Vector2(0.5f, 0f), 100f);
                 if (defaultGolferSprite == null)
                 {
-                    defaultGolferSprite = OwenBattleAnimator.LoadSpriteDirect("Assets/Sprites/Golfer/Golfer.png", new Vector2(0.5f, 0f), 100f);
+                    defaultGolferSprite = OwenBattleAnimator.LoadSpriteDirect("Assets/Sprites/Golfer/Golfer_256.png", new Vector2(0.5f, 0.24f), 100f);
                 }
             }
 

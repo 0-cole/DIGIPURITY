@@ -81,6 +81,10 @@ namespace DigiPurity.Combat
 
             // Locate or spawn Battle Stage in deep void
             var activeBattle = BattleStageController.EnsureBattleStageExists();
+            var encounterConfig = GetComponent<BattleEncounterConfig>();
+            if (encounterConfig == null) encounterConfig = GetComponentInParent<BattleEncounterConfig>();
+            if (encounterConfig == null) encounterConfig = GetComponentInChildren<BattleEncounterConfig>();
+            var overworldEnemy = GetComponentInParent<OverworldEnemy>();
 
             // Delegate transition to ScreenFader so deactivating this GameObject does not kill the fade coroutine
             ScreenFader.Instance.Transition(
@@ -98,7 +102,18 @@ namespace DigiPurity.Combat
                     if (activeBattle != null)
                     {
                         activeBattle.gameObject.SetActive(true);
-                        activeBattle.StartNewTurn();
+                        if (encounterConfig != null && encounterConfig.enemies != null && encounterConfig.enemies.Count > 0)
+                        {
+                            activeBattle.InitializeWithEncounter(encounterConfig, player, overworldEnemy);
+                        }
+                        else if (overworldEnemy != null && overworldEnemy.Data != null)
+                        {
+                            activeBattle.InitializeWithEnemy(overworldEnemy.Data, player, overworldEnemy);
+                        }
+                        else
+                        {
+                            activeBattle.StartNewTurn();
+                        }
                     }
 
                     player.gameObject.SetActive(false);

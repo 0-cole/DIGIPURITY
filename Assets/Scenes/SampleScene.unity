@@ -467,9 +467,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.19453308
+    x: 0.064285725
     y: 0
-    width: 0.61093384
+    width: 0.87142855
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -500,7 +500,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.863722, y: 0, z: -10}
+  m_LocalPosition: {x: 10.863722, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -643,6 +643,7 @@ GameObject:
   - component: {fileID: 669781382}
   - component: {fileID: 669781385}
   - component: {fileID: 669781384}
+  - component: {fileID: 669781386}
   m_Layer: 0
   m_Name: Golfer
   m_TagString: Untagged
@@ -719,7 +720,7 @@ Transform:
   m_GameObject: {fileID: 669781381}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 47.49, y: -2.5, z: 0}
+  m_LocalPosition: {x: 47.45, y: -2.5, z: 0}
   m_LocalScale: {x: 4.5265822, y: 4.439629, z: 3.1391}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -740,7 +741,7 @@ MonoBehaviour:
   creatureName: Golfer
   colliderMode: 0
   footprintHeightRatio: 0.52
-  footprintWidthRatio: 0.53
+  footprintWidthRatio: 0.682
   footprintOffsetX: -0.19
   footprintOffsetY: 0
   dynamicDepthSorting: 1
@@ -816,8 +817,203 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.42929998, y: 0.59279996}
+  m_Size: {x: 0.55241996, y: 0.59279996}
   m_EdgeRadius: 0
+--- !u!114 &669781386
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669781381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6690ee19592805d49b58113fb4609c73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DigiPurity.Combat.BattleEncounterConfig
+  numberOfEnemies: 1
+  autoLetterDuplicateNames: 1
+  formationPreset: 0
+  enemies:
+  - enemyType: 0
+    enemyName: Golfer
+    baseProfile: {fileID: 11400000, guid: 7a82c6114a8241fbbf57c8352beea888, type: 2}
+    maxHp: 100
+    startingHp: 0
+    defense: 0
+    purgeMarkerHp: 0
+    damageAffinities: []
+    visuals:
+      idleFrames:
+      - {fileID: 21300000, guid: 5cb3f7bb0a21434297b9f3d4f44732f9, type: 3}
+      idleFps: 6
+      attackWindupSprite: {fileID: 21300000, guid: 8b53da6ff12549888af19fa1199d8ceb, type: 3}
+      hurtSprite: {fileID: -96623304726213323, guid: 90a689fe5dbf1e54b82785a6542bc19f, type: 3}
+      purifyReadySprite: {fileID: -7773544253703590610, guid: 01505dc72874ba24caee8da8c5526aaa, type: 3}
+      zeroHpExhaustedSprite: {fileID: 2920222941555107129, guid: a3ff4eef68287e549b61b2a82e99bef2, type: 3}
+      overworldPurifiedSprite: {fileID: 3964131619491764376, guid: 1738101c5c6b49340873e93375f11c0b, type: 3}
+      stagePositionOffset: {x: 0, y: 0}
+      scale: 4.35
+      flipX: 0
+      groundLineOffset: 0
+      sortingOrderOffset: 0
+      enableProceduralBob: 1
+      bobFrequency: 2.5
+      bobAmplitude: 0.12
+    attackOrder: 0
+    attackPatterns:
+    - attackName: 'Golfer Preset: Fairway Rain'
+      presetType: 0
+      customAttackPrefab: {fileID: 0}
+      duration: 4.8
+      spawnInterval: 0.28
+      projectileSpeed: 3.2
+      projectilesPerStep: 1
+      coreDamage: 8
+      outerSplashDamage: 5
+      projectileSprite: {fileID: 0}
+      projectileColor: {r: 1, g: 1, b: 1, a: 1}
+      projectileScale: 0.4
+      movementRule: 0
+      unlockAtOrBelowHpPercent: 100
+      overrideDodgeBoxForAttack: 0
+      attackDodgeBoxOffset: {x: 0.85, y: 1.35}
+      attackDodgeBoxSize: {x: 3.6, y: 2.7}
+      darkenUIButtons: 1
+      uiDimAlpha: 0.4
+      darkenOwenSprite: 0
+      darkenEnemySprites: 0
+      spriteDimAmount: 0.45
+    - attackName: 'Golfer Preset: Sand Trap Bunker Spread'
+      presetType: 1
+      customAttackPrefab: {fileID: 0}
+      duration: 4.8
+      spawnInterval: 0.52
+      projectileSpeed: 3.6
+      projectilesPerStep: 3
+      coreDamage: 12
+      outerSplashDamage: 5
+      projectileSprite: {fileID: 0}
+      projectileColor: {r: 1, g: 1, b: 1, a: 1}
+      projectileScale: 0.4
+      movementRule: 0
+      unlockAtOrBelowHpPercent: 100
+      overrideDodgeBoxForAttack: 0
+      attackDodgeBoxOffset: {x: 0.85, y: 1.35}
+      attackDodgeBoxSize: {x: 3.6, y: 2.7}
+      darkenUIButtons: 1
+      uiDimAlpha: 0.4
+      darkenOwenSprite: 0
+      darkenEnemySprites: 0
+      spriteDimAmount: 0.45
+    - attackName: 'Golfer Preset: Ricochet Putter Drive'
+      presetType: 2
+      customAttackPrefab: {fileID: 0}
+      duration: 5
+      spawnInterval: 0.7
+      projectileSpeed: 3.8
+      projectilesPerStep: 1
+      coreDamage: 10
+      outerSplashDamage: 6
+      projectileSprite: {fileID: 0}
+      projectileColor: {r: 1, g: 1, b: 1, a: 1}
+      projectileScale: 0.44
+      movementRule: 0
+      unlockAtOrBelowHpPercent: 100
+      overrideDodgeBoxForAttack: 0
+      attackDodgeBoxOffset: {x: 0.85, y: 1.35}
+      attackDodgeBoxSize: {x: 3.6, y: 2.7}
+      darkenUIButtons: 1
+      uiDimAlpha: 0.4
+      darkenOwenSprite: 0
+      darkenEnemySprites: 0
+      spriteDimAmount: 0.45
+    silentEnemyNoBarks: 0
+    speechBubbleOffset: {x: 0, y: 0}
+    speechBubbleSize: {x: 188, y: 68}
+    voiceBlipClip: {fileID: 0}
+    defaultBattleBarks:
+    - A little birdy told me you could use some BULLETS!
+    - NICE SHOT!
+    - 'FORE! '
+    conditionalDialogue:
+    - ruleLabel: Attack 2 (Sand Trap Spread) Warning
+      triggerType: 2
+      thresholdValue: 1
+      attackPatternIndex: 1
+      triggerActName: 
+      priority: 60
+      triggerOnce: 0
+      dialogueLines:
+      - WATCH THE SAND TRAP, KID!
+    - ruleLabel: Attack 3 (Ricochet Drive) Warning
+      triggerType: 2
+      thresholdValue: 1
+      attackPatternIndex: 2
+      triggerActName: 
+      priority: 60
+      triggerOnce: 0
+      dialogueLines:
+      - BANKING THIS ONE OFF THE WALLS!
+    - ruleLabel: Low HP <= 50%
+      triggerType: 1
+      thresholdValue: 50
+      attackPatternIndex: 0
+      triggerActName: 
+      priority: 75
+      triggerOnce: 1
+      dialogueLines:
+      - Huff... rough back nine today...
+    purifyThreshold: 100
+    actOptions:
+    - actName: Check
+      bottomBarNarration: GOLFER - ATK 4 DEF 2. Old golfing game program personified.
+      enemySpeechReply: 
+      purifyGain: 0
+      nextTurnDamageMultiplier: 1
+      nextTurnSpeedMultiplier: 1
+      affectsAllEnemies: 0
+      unlockedAfterActName: 
+    - actName: Analyze Swing
+      bottomBarNarration: You pointed out a hitch in his backswing. Golfer nods thoughtfully!
+      enemySpeechReply: Oh, thanks. Didn't even know I was off!
+      purifyGain: 50
+      nextTurnDamageMultiplier: 1
+      nextTurnSpeedMultiplier: 1
+      affectsAllEnemies: 0
+      unlockedAfterActName: Check
+    - actName: Heckle
+      bottomBarNarration: You yelled 'FORE!' during his putting routine. His next shot loses focus!
+      enemySpeechReply: HEY! Quiet on the green!
+      purifyGain: 25
+      nextTurnDamageMultiplier: 0.75
+      nextTurnSpeedMultiplier: 1
+      affectsAllEnemies: 0
+      unlockedAfterActName: 
+    hitReactionBark: O-Ow! Hey!
+    zeroHpExhaustedBark: P-Please... you dont have to do this. I'm beggin' you, kid.
+    purifyFarewellBark: Y-You actually..! Oh, thank you!
+    lethalPurgeMonologue:
+    - I guess.. I shouldn't blame you, kid.
+    - Haah.. but.. I've gotta warn you.
+    - He'll be waiting for you.
+    - And he wont take this as nicely as I did.
+    - Did I..
+    lethalPurgeCutOffLine: at least do well, ki-
+    expOnPurify: 10
+    expOnPurge: 25
+    digiDollarsReward: 5
+  combinedAttacks: []
+  encounterSong: {fileID: 0}
+  bgmVolume: 0.85
+  bgmStartPitch: 1
+  enableAutoLowHpSlowdown: 1
+  conditionalSongRules: []
+  useCustomDodgeBox: 0
+  customDodgeBoxOffset: {x: 0.85, y: 1.35}
+  customDodgeBoxSize: {x: 3.6, y: 2.7}
+  customOpeningFlavorText: 
+  runTutorialDriverIfPresent: 0
 --- !u!1 &1477414754
 GameObject:
   m_ObjectHideFlags: 0
@@ -830,7 +1026,7 @@ GameObject:
   - component: {fileID: 1477414756}
   - component: {fileID: 1477414755}
   m_Layer: 0
-  m_Name: Hallway Thing
+  m_Name: Hallway 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

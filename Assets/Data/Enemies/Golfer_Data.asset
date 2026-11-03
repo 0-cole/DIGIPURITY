@@ -16,7 +16,7 @@ MonoBehaviour:
   enemyName: Golfer
   description: A rogue sports simulation entity infected by primitive AI scripts.
   overworldSprite: {fileID: 21300000, guid: 8b53da6ff12549888af19fa1199d8ceb, type: 3}
-  battleSprite: {fileID: 21300000, guid: 5cb3f7bb0a21434297b9f3d4f44732f9, type: 3}
+  battleSprite: {fileID: 21300000, guid: 8b53da6ff12549888af19fa1199d8ceb, type: 3}
   battleHurtSprite: {fileID: 0}
   bulletSprite: {fileID: 21300000, guid: 271281126b2849efb83b3c1c66992389, type: 3}
   bulletColor: {r: 1, g: 1, b: 1, a: 1}

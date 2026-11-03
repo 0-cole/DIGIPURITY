@@ -263,8 +263,8 @@ namespace DigiPurity.World.Editor
                     new DigiPurity.Combat.TalkOption
                     {
                         optionName = "Analyze Swing",
-                        responseText = "You pointed out a hitch in his backswing. Golfer looks perturbed (+15 TP)!",
-                        tpReward = 38
+                        responseText = "You pointed out a hitch in his backswing. Golfer looks perturbed!",
+                        mercyReward = 50
                     },
                     new DigiPurity.Combat.TalkOption
                     {

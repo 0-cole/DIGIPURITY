@@ -106,23 +106,11 @@ namespace DigiPurity.Combat
             _playerTarget = FindAnyObjectByType<OverworldPlayerController>();
         }
 
-        /// <summary>
-        /// Calculates whether spriteRenderer.flipX should be true or false to face toward the target.
-        /// </summary>
         public static bool CalculateFacingFlip(Vector2 toPlayer, bool spriteFacesLeftByDefault)
         {
-            // If sprite faces left natively (like Golfer):
-            // - Player is to the left (toPlayer.x < 0) => flipX = false (faces left, toward player)
-            // - Player is to the right (toPlayer.x > 0) => flipX = true (faces right, toward player)
-            // If sprite faces right natively:
-            // - Player is to the left (toPlayer.x < 0) => flipX = true (faces left, toward player)
-            // - Player is to the right (toPlayer.x > 0) => flipX = false (faces right, toward player)
             return spriteFacesLeftByDefault ? (toPlayer.x > 0f) : (toPlayer.x < 0f);
         }
 
-        /// <summary>
-        /// Calculates accelerated rush speed capped at maxSpeed.
-        /// </summary>
         public static float CalculateAcceleratedSpeed(float currentSpeed, float acceleration, float maxSpeed, float deltaTime)
         {
             return Mathf.Min(currentSpeed + acceleration * deltaTime, maxSpeed);
@@ -131,20 +119,16 @@ namespace DigiPurity.Combat
         private void Update()
         {
             if (_isEncounterTriggered || !agroOnSight || _playerTarget == null) return;
-
-            // Don't agro if player's inputs are already locked (e.g. during a cutscene or another transition)
             if (_playerTarget.InputLocked) return;
 
             float dist = Vector2.Distance(transform.position, _playerTarget.transform.position);
 
-            // 1. Detect Player in Sight Range
             if (!_isRushing && dist <= sightRadius)
             {
                 _isRushing = true;
                 _currentRushSpeed = rushSpeed;
             }
 
-            // 2. Rush towards Player with continuous acceleration
             if (_isRushing)
             {
                 _currentRushSpeed = CalculateAcceleratedSpeed(_currentRushSpeed, rushAcceleration, maxRushSpeed, Time.deltaTime);
@@ -153,13 +137,11 @@ namespace DigiPurity.Combat
                 float step = _currentRushSpeed * Time.deltaTime;
                 transform.position += toPlayer * step;
 
-                // Face the player so Golfer doesn't turn around and run backwards
                 if (facePlayerOnRush && spriteRenderer != null && Mathf.Abs(toPlayer.x) > 0.05f)
                 {
                     spriteRenderer.flipX = CalculateFacingFlip(toPlayer, spriteFacesLeftByDefault);
                 }
 
-                // If touching distance or overshooting in this frame
                 if (dist <= stopDistance || dist <= step)
                 {
                     TriggerEncounter(_playerTarget);
@@ -201,10 +183,8 @@ namespace DigiPurity.Combat
 
         private IEnumerator EncounterTransitionRoutine(OverworldPlayerController player)
         {
-            // 1. Lock Owen's input instantly
             player.InputLocked = true;
 
-            // 2. Spawn Cyan Soul directly over Owen's chest
             Vector3 chestPos = player.transform.position + new Vector3(0f, 0.45f, 0f);
             GameObject soulObj = new GameObject("EncounterAlertSoul");
             soulObj.transform.position = chestPos;
@@ -214,7 +194,6 @@ namespace DigiPurity.Combat
             sr.sprite = cyanSoulSprite;
             sr.sortingOrder = 3000;
 
-            // 3. Screen darkens and Soul blinks 3 times (4 frames on, 3 frames off)
             for (int i = 0; i < 3; i++)
             {
                 sr.enabled = true;
@@ -226,22 +205,17 @@ namespace DigiPurity.Combat
                 yield return new WaitForSeconds(0.08f);
             }
 
-            // Final blackout
             sr.enabled = true;
             ScreenFader.Instance.SetAlpha(1.0f);
             yield return new WaitForSeconds(0.15f);
 
             Destroy(soulObj);
 
-            // Locate or spawn Battle Stage in deep void
             var battleStage = BattleStageController.EnsureBattleStageExists();
 
-            // Delegate room/battle swap to ScreenFader.Instance so deactivating
-            // this GameObject does NOT kill the fade-in coroutine!
             ScreenFader.Instance.Transition(
                 onBlack: () =>
                 {
-                    // 1. Center Main Camera over the battle stage and disable overworld room clamping
                     Camera mainCam = Camera.main;
                     if (mainCam != null)
                     {
@@ -253,14 +227,20 @@ namespace DigiPurity.Combat
                         mainCam.orthographicSize = 6.0f;
                     }
 
-                    // 2. Activate battle stage and pass this enemy's data
                     if (battleStage != null)
                     {
                         battleStage.gameObject.SetActive(true);
-                        battleStage.InitializeWithEnemy(enemyData, player, this);
+                        var encounterConfig = GetComponent<BattleEncounterConfig>();
+                        if (encounterConfig != null)
+                        {
+                            battleStage.InitializeWithEncounter(encounterConfig, player, this);
+                        }
+                        else
+                        {
+                            battleStage.InitializeWithEnemy(enemyData, player, this);
+                        }
                     }
 
-                    // 3. Hide overworld player & this overworld enemy
                     player.gameObject.SetActive(false);
                     gameObject.SetActive(false);
                 },

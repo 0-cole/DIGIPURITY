@@ -384,6 +384,23 @@ namespace DigiPurity.World
                         {
                             allowedDist = allowed;
                         }
+
+                        // Check for NPC Creature or Overworld Enemy hit
+                        var creature = hit.collider.GetComponent<OverworldCreature>();
+                        if (creature == null) creature = hit.collider.GetComponentInParent<OverworldCreature>();
+                        if (creature != null && creature.Encounter == OverworldCreature.EncounterMode.TriggerCombatOnTouch)
+                        {
+                            creature.TriggerCombatEncounter();
+                        }
+                        else
+                        {
+                            var enemy = hit.collider.GetComponent<DigiPurity.Combat.OverworldEnemy>();
+                            if (enemy == null) enemy = hit.collider.GetComponentInParent<DigiPurity.Combat.OverworldEnemy>();
+                            if (enemy != null)
+                            {
+                                enemy.TriggerEncounter(this);
+                            }
+                        }
                     }
                 }
             }

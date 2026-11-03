@@ -8,7 +8,7 @@ namespace DigiPurity.Core
         private static Font _signFont;
 
         /// <summary>
-        /// The canonical main game font (VCR OSD Mono from user's downloads) used across
+        /// The canonical main game CRT font (VCR OSD Mono) used across
         /// battle HUD, menus, NPC dialogues, and overhead speech bubbles.
         /// </summary>
         public static Font MainFont
@@ -19,6 +19,14 @@ namespace DigiPurity.Core
 
 #if UNITY_EDITOR
                 _mainFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/VCR_OSD_MONO_1.001.ttf");
+                if (_mainFont == null)
+                {
+                    _mainFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/HachicroUndertaleBattleFontRegular-L3zlg.ttf");
+                }
+                if (_mainFont == null)
+                {
+                    _mainFont = UnityEditor.AssetDatabase.LoadAssetAtPath<Font>("Assets/Fonts/Pixelta.ttf");
+                }
 #endif
                 if (_mainFont == null)
                 {
