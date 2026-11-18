@@ -61,31 +61,11 @@ namespace DigiPurity.Combat
             transform.position = newPos;
         }
 
-        public static Sprite LoadSpriteDirect(string relativePath, Vector2 pivot, float ppu = 100f)
-        {
-#if UNITY_EDITOR
-            Sprite asset = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(relativePath);
-            if (asset != null) return asset;
-#endif
-            try
-            {
-                string fullPath = System.IO.Path.Combine(Application.dataPath, "..", relativePath);
-                if (System.IO.File.Exists(fullPath))
-                {
-                    byte[] bytes = System.IO.File.ReadAllBytes(fullPath);
-                    Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-                    tex.LoadImage(bytes);
-                    tex.filterMode = FilterMode.Point;
-                    return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), pivot, ppu);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"[OwenBattleAnimator] Direct sprite load failed for {relativePath}: {ex.Message}");
-            }
-            return null;
-        }
-
+        public static Sprite LoadSpriteDirect(string relativePath, Vector2 pivot, float ppu = 100f)
+        {
+            return DigiPurity.Core.RuntimeAssets.Load<Sprite>(relativePath);
+        }
+
         private void Awake()
         {
             EnsureRenderer();

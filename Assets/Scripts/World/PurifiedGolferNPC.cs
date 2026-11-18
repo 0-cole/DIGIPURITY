@@ -69,13 +69,11 @@ namespace DigiPurity.World
 
             if (voiceBlipClip == null)
             {
-#if UNITY_EDITOR
-                voiceBlipClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/snd_txt_golfer.wav");
+                voiceBlipClip = DigiPurity.Core.RuntimeAssets.Load<AudioClip>("Assets/Audio/snd_txt_golfer.wav");
                 if (voiceBlipClip == null)
                 {
-                    voiceBlipClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/snd_txt_default.wav");
+                    voiceBlipClip = DigiPurity.Core.RuntimeAssets.Load<AudioClip>("Assets/Audio/snd_txt_default.wav");
                 }
-#endif
             }
         }
 

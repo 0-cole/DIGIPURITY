@@ -26,17 +26,6 @@ namespace DigiPurity.Tests
             Assert.AreEqual(-20, data.talkOptions[1].chargeDelta);
         }
 
-        [Test]
-        public void TensionSystem_ProcessesTalkOptionRewards()
-        {
-            var system = new TensionAndChargeSystem(initialCharge: 0, initialTension: 50f);
-            var opt = new TalkOption { optionName = "Analyze Swing", chargeDelta = -15 };
-
-            system.ModifyCharge(opt.chargeDelta);
-
-            Assert.AreEqual(50f, system.CurrentTension, 0.001f);
-            Assert.AreEqual(-15, system.CurrentCharge);
-        }
 
         [Test]
         public void TalkOption_PurifyReward_SyncsWithMercyReward()

@@ -118,9 +118,7 @@ namespace DigiPurity.World
 
             _previousFacing = currentFacing;
 
-#if UNITY_EDITOR
             AutoBindSpritesIfNeeded();
-#endif
 
             if (idleDownSprite != null && spriteRenderer != null)
             {
@@ -133,6 +131,7 @@ namespace DigiPurity.World
         {
             AutoBindSpritesIfNeeded();
         }
+#endif
 
         public void AutoBindSpritesIfNeeded()
         {
@@ -142,13 +141,13 @@ namespace DigiPurity.World
             }
 
             if (idleDownSprite == null)
-                idleDownSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Owen/Owen_Idle_Down_0.png");
+                idleDownSprite = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/Owen/Owen_Idle_Down_0.png");
             if (idleUpSprite == null)
-                idleUpSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Owen/Owen_Idle_Up_0.png");
+                idleUpSprite = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/Owen/Owen_Idle_Up_0.png");
             if (idleLeftSprite == null)
-                idleLeftSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Owen/Owen_Idle_Left_0.png");
+                idleLeftSprite = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/Owen/Owen_Idle_Left_0.png");
             if (idleSideSprite == null)
-                idleSideSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Owen/Owen_Idle_Side_0.png");
+                idleSideSprite = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/Owen/Owen_Idle_Side_0.png");
 
             if (walkDownFrames == null || walkDownFrames.Length == 0 || walkDownFrames[0] == null)
                 walkDownFrames = LoadFrameArray("Owen_Walk_Down", 4);
@@ -170,11 +169,10 @@ namespace DigiPurity.World
             Sprite[] arr = new Sprite[count];
             for (int i = 0; i < count; i++)
             {
-                arr[i] = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Sprites/Owen/{prefix}_{i}.png");
+                arr[i] = DigiPurity.Core.RuntimeAssets.Load<Sprite>($"Assets/Sprites/Owen/{prefix}_{i}.png");
             }
             return arr;
         }
-#endif
 
         private void Update()
         {

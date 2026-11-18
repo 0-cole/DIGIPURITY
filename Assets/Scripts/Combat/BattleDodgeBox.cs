@@ -58,10 +58,8 @@ namespace DigiPurity.Combat
         {
             if (assigned != null) return assigned;
             if (_cachedSoulSprite != null) return _cachedSoulSprite;
-#if UNITY_EDITOR
-            var loaded = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/CyanSoul.png");
+            var loaded = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/Combat/CyanSoul.png");
             if (loaded != null) { _cachedSoulSprite = loaded; return loaded; }
-#endif
             int size = 24;
             Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
             tex.filterMode = FilterMode.Point;
@@ -86,10 +84,8 @@ namespace DigiPurity.Combat
         {
             if (assigned != null) return assigned;
             if (_cachedBulletSprite != null) return _cachedBulletSprite;
-#if UNITY_EDITOR
-            var loaded = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/WhiteBullet_16.png");
+            var loaded = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/Combat/WhiteBullet_16.png");
             if (loaded != null) { _cachedBulletSprite = loaded; return loaded; }
-#endif
             int size = 16;
             Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
             tex.filterMode = FilterMode.Point;
@@ -118,12 +114,10 @@ namespace DigiPurity.Combat
 
         public void AutoLoadSprites()
         {
-#if UNITY_EDITOR
             if (bulletSprite == null)
-                bulletSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/WhiteBullet_16.png");
+                bulletSprite = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/Combat/WhiteBullet_16.png");
             if (soulSprite == null)
-                soulSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/CyanSoul.png");
-#endif
+                soulSprite = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/Combat/CyanSoul.png");
         }
 
         private void SetupBorder()

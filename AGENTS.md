@@ -10,6 +10,7 @@ When working on the **DIGIPURITY** repository:
      - **Deltarune Doors & Secret Egg Room**: Use `AreaDoor.cs` for 2-way paired door transitions and 1-in-50 (2%) secret room diversions.
      - **Combat Synthesis**: Maintain the Deltarune turn-based HUD/TP/Graze, Undertale central dodge box, and OFF moral polarity/encounter cap math.
      - **Narrative & Tonal Authenticity**: Maintain the tense, vengeful emotional spine blended with satirical, surreal, comedic Undertale/Deltarune tone critiquing modern AI content farming.
+     - **Standalone Build Asset Invariant (`Assets/Resources/` + `RuntimeAssets`)**: Always organize and place all runtime sprites, textures, audio, fonts, and ScriptableObject data into structured subfolders under `Assets/Resources/` (`Sprites/{Combat,Environment,Golfer,Owen,UI,World}/`, `Audio/`, `Fonts/`, `Data/`) and load them via `RuntimeAssets.Load<T>(...)` or `Resources.Load<T>(...)` — NEVER rely solely on `#if UNITY_EDITOR AssetDatabase` or raw disk `File.ReadAllBytes` in runtime scripts, so compiled builds always include every sprite and sound.
 
 2. **Universal Fast-Path & Highest-Leverage Execution (Anti-Overthinking Invariant Across ALL Tasks)**:
    - **Applies to ALL Domains**: This rule governs gameplay logic, physics, enemy AI, movement, combat math, cameras, audio, dialogues, transitions, shaders, input, and UI.

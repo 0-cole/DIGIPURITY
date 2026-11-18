@@ -51,9 +51,7 @@ namespace DigiPurity.World
 
             if (abandonwareClip == null)
             {
-#if UNITY_EDITOR
-                abandonwareClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/Abandonware.mp3");
-#endif
+                abandonwareClip = DigiPurity.Core.RuntimeAssets.Load<AudioClip>("Assets/Audio/Abandonware.mp3");
             }
         }
 
@@ -63,9 +61,7 @@ namespace DigiPurity.World
 
             if (abandonwareClip == null)
             {
-#if UNITY_EDITOR
-                abandonwareClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/Abandonware.mp3");
-#endif
+                abandonwareClip = DigiPurity.Core.RuntimeAssets.Load<AudioClip>("Assets/Audio/Abandonware.mp3");
             }
 
             if (abandonwareClip != null)

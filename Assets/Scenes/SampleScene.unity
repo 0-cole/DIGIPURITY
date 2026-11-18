@@ -992,7 +992,7 @@ MonoBehaviour:
       unlockedAfterActName: 
     hitReactionBark: O-Ow! Hey!
     zeroHpExhaustedBark: P-Please... you dont have to do this. I'm beggin' you, kid.
-    purifyFarewellBark: Y-You actually..! Oh, thank you!
+    purifyFarewellBark: Y-You actually..! Oh, thank you! I really can't thank you enough!
     lethalPurgeMonologue:
     - I guess.. I shouldn't blame you, kid.
     - Haah.. but.. I've gotta warn you.
@@ -1008,7 +1008,21 @@ MonoBehaviour:
   bgmVolume: 0.85
   bgmStartPitch: 1
   enableAutoLowHpSlowdown: 1
-  conditionalSongRules: []
+  conditionalSongRules:
+  - ruleName: 
+    condition: 0
+    thresholdValue: 0
+    triggerActName: 
+    action: 1
+    targetSong: {fileID: 0}
+    loopTargetSong: 0
+    syncPlaybackTimeOnSwitch: 0
+    targetVolume: 0
+    targetPitch: 0
+    targetDistortion: 0
+    targetLowPassCutoff: 0
+    transitionDuration: 0
+    triggerOnce: 0
   useCustomDodgeBox: 0
   customDodgeBoxOffset: {x: 0.85, y: 1.35}
   customDodgeBoxSize: {x: 3.6, y: 2.7}

@@ -100,11 +100,7 @@ namespace DigiPurity.World
             _shadowSr = shadowObj.GetComponent<SpriteRenderer>();
             if (_shadowSr == null) _shadowSr = shadowObj.AddComponent<SpriteRenderer>();
 
-            string shadowPath = Application.dataPath + "/Sprites/World/Drop_Shadow_64.png";
-            if (File.Exists(shadowPath))
-            {
-                _shadowSr.sprite = LoadSpriteDirect(shadowPath, 32f);
-            }
+            _shadowSr.sprite = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/World/Drop_Shadow_64.png");
             if (_shadowSr.sprite == null)
             {
                 _shadowSr.sprite = CreateProceduralShadowSprite();
@@ -124,51 +120,18 @@ namespace DigiPurity.World
         {
             _glitchFrames = new Sprite[4];
 
-#if UNITY_EDITOR
             for (int i = 0; i < 4; i++)
             {
-                Sprite asset = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>($"Assets/Sprites/World/Lucas_Sign_{i}.png");
+                Sprite asset = DigiPurity.Core.RuntimeAssets.Load<Sprite>($"Assets/Sprites/World/Lucas_Sign_{i}.png");
                 if (asset != null) _glitchFrames[i] = asset;
             }
+
             if (_glitchFrames[0] == null)
             {
-                Sprite mainAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/World/Lucas_Sign.png");
+                Sprite mainAsset = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/World/Lucas_Sign.png");
                 if (mainAsset != null)
                 {
                     for (int i = 0; i < 4; i++) _glitchFrames[i] = mainAsset;
-                }
-            }
-#endif
-
-            if (_glitchFrames[0] == null)
-            {
-                string[] possibleDirs = new string[]
-                {
-                    Application.dataPath + "/Sprites/World/",
-                    System.IO.Path.Combine(Application.dataPath, "..", "Assets/Sprites/World/"),
-                    System.IO.Path.Combine(Application.dataPath, "Sprites/")
-                };
-
-                foreach (string dir in possibleDirs)
-                {
-                    if (System.IO.Directory.Exists(dir))
-                    {
-                        for (int i = 0; i < 4; i++)
-                        {
-                            string p = System.IO.Path.Combine(dir, $"Lucas_Sign_{i}.png");
-                            if (File.Exists(p)) _glitchFrames[i] = LoadSpriteDirect(p, 32f);
-                        }
-                        if (_glitchFrames[0] == null)
-                        {
-                            string mainP = System.IO.Path.Combine(dir, "Lucas_Sign.png");
-                            if (File.Exists(mainP))
-                            {
-                                Sprite s = LoadSpriteDirect(mainP, 32f);
-                                for (int i = 0; i < 4; i++) _glitchFrames[i] = s;
-                            }
-                        }
-                        if (_glitchFrames[0] != null) break;
-                    }
                 }
             }
 

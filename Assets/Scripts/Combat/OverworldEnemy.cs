@@ -51,12 +51,10 @@ namespace DigiPurity.Combat
 
         private void Awake()
         {
-#if UNITY_EDITOR
             if (enemyData == null)
             {
-                enemyData = UnityEditor.AssetDatabase.LoadAssetAtPath<EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
+                enemyData = DigiPurity.Core.RuntimeAssets.Load<EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
             }
-#endif
             var col = GetComponent<Collider2D>();
             if (col != null && GetComponent<DigiPurity.World.OverworldCreature>() == null)
             {
@@ -93,12 +91,10 @@ namespace DigiPurity.Combat
 
         public void AutoLoadSoul()
         {
-#if UNITY_EDITOR
             if (cyanSoulSprite == null)
             {
-                cyanSoulSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/CyanSoul.png");
+                cyanSoulSprite = DigiPurity.Core.RuntimeAssets.Load<Sprite>("Assets/Sprites/Combat/CyanSoul.png");
             }
-#endif
         }
 
         private void Start()

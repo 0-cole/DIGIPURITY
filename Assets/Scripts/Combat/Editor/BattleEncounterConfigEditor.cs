@@ -56,7 +56,7 @@ namespace DigiPurity.Combat.Editor
             }
 
             string prefabPath = AssetDatabase.GenerateUniqueAssetPath($"{folderPath}/CustomAttack_GolferClubSweep.prefab");
-            Sprite bulletSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/WhiteBullet_16.png");
+            Sprite bulletSpr = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Sprites/Combat/WhiteBullet_16.png");
 
             GameObject root = new GameObject("CustomAttack_GolferClubSweep");
 

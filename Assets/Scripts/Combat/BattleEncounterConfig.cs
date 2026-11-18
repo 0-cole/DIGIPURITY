@@ -69,12 +69,10 @@ namespace DigiPurity.Combat
             {
                 defaultGolfer = owEnemy.Data;
             }
-#if UNITY_EDITOR
             if (defaultGolfer == null)
             {
-                defaultGolfer = UnityEditor.AssetDatabase.LoadAssetAtPath<EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
+                defaultGolfer = DigiPurity.Core.RuntimeAssets.Load<EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
             }
-#endif
 
             while (enemies.Count < numberOfEnemies)
             {
@@ -92,10 +90,7 @@ namespace DigiPurity.Combat
         public void ApplyGolferBaselineToAllSlots()
         {
             SyncSlotCountWithNumberOfEnemies();
-            EnemyData golferAsset = null;
-#if UNITY_EDITOR
-            golferAsset = UnityEditor.AssetDatabase.LoadAssetAtPath<EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
-#endif
+            EnemyData golferAsset = DigiPurity.Core.RuntimeAssets.Load<EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
             for (int i = 0; i < enemies.Count; i++)
             {
                 enemies[i] = BattleEncounterSlot.CreateGolferPresetSlot(golferAsset);

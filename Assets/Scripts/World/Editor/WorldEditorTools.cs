@@ -41,7 +41,7 @@ namespace DigiPurity.World.Editor
 
             var sr = squareObj.GetComponent<SpriteRenderer>();
             if (sr == null) sr = squareObj.AddComponent<SpriteRenderer>();
-            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Environment/WalkableSquare.png");
+            sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Sprites/Environment/WalkableSquare.png");
             sr.drawMode = SpriteDrawMode.Simple;
             sr.sortingOrder = -10;
 
@@ -210,8 +210,8 @@ namespace DigiPurity.World.Editor
             if (sr == null) sr = overworldGolfer.AddComponent<SpriteRenderer>();
             if (sr.sprite == null)
             {
-                sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer_256.png");
-                if (sr.sprite == null) sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer.png");
+                sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Sprites/Golfer/Golfer_256.png");
+                if (sr.sprite == null) sr.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Sprites/Golfer/Golfer.png");
             }
             if (sr.sortingOrder <= 0) sr.sortingOrder = 10;
 
@@ -227,19 +227,19 @@ namespace DigiPurity.World.Editor
             enemyComp.AutoLoadSoul();
 
             // Load or create Golfer EnemyData
-            if (!System.IO.Directory.Exists("Assets/Data/Enemies"))
+            if (!System.IO.Directory.Exists("Assets/Resources/Data/Enemies"))
             {
-                System.IO.Directory.CreateDirectory("Assets/Data/Enemies");
+                System.IO.Directory.CreateDirectory("Assets/Resources/Data/Enemies");
             }
-            var golferData = AssetDatabase.LoadAssetAtPath<DigiPurity.Combat.EnemyData>("Assets/Data/Enemies/Golfer_Data.asset");
+            var golferData = AssetDatabase.LoadAssetAtPath<DigiPurity.Combat.EnemyData>("Assets/Resources/Data/Enemies/Golfer_Data.asset");
             if (golferData == null)
             {
                 golferData = ScriptableObject.CreateInstance<DigiPurity.Combat.EnemyData>();
                 golferData.enemyId = "golfer";
                 golferData.enemyName = "Golfer";
                 golferData.description = "A rogue sports simulation entity infected by primitive AI scripts.";
-                golferData.battleSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Golfer/Golfer_256.png");
-                golferData.bulletSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/Combat/WhiteBullet_16.png");
+                golferData.battleSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Sprites/Golfer/Golfer_256.png");
+                golferData.bulletSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Resources/Sprites/Combat/WhiteBullet_16.png");
                 golferData.maxHp = 100;
                 golferData.glitchThreshold = 50;
                 golferData.basePower = 4;
@@ -273,7 +273,7 @@ namespace DigiPurity.World.Editor
                         chargeDelta = -15
                     }
                 };
-                AssetDatabase.CreateAsset(golferData, "Assets/Data/Enemies/Golfer_Data.asset");
+                AssetDatabase.CreateAsset(golferData, "Assets/Resources/Data/Enemies/Golfer_Data.asset");
                 AssetDatabase.SaveAssets();
             }
             enemyComp.SetEnemyData(golferData);

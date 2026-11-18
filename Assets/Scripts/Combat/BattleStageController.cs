@@ -523,11 +523,6 @@ namespace DigiPurity.Combat
             enemyAnimator.SetBasePosition(enemyBattlePos);
             enemyAnimator.IsBobbing = true;
 
-            // Clean up old overhead coin trays if present
-            var oldOwenUI = owenAnimator.GetComponent<BattleCombatantUI>();
-            if (oldOwenUI != null) DestroyImmediate(oldOwenUI);
-            var oldEnemyUI = enemyAnimator.GetComponent<BattleCombatantUI>();
-            if (oldEnemyUI != null) DestroyImmediate(oldEnemyUI);
 
             // 4. Ensure BattleDodgeBox
             if (dodgeBox == null)
@@ -587,30 +582,7 @@ namespace DigiPurity.Combat
 
         public static Texture2D LoadTextureDirect(string relativePath)
         {
-            try
-            {
-                string fullPath = System.IO.Path.Combine(Application.dataPath, "..", relativePath);
-                if (System.IO.File.Exists(fullPath))
-                {
-                    byte[] bytes = System.IO.File.ReadAllBytes(fullPath);
-                    Texture2D tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
-                    if (tex.LoadImage(bytes) && tex.width > 2 && tex.height > 2)
-                    {
-                        tex.filterMode = FilterMode.Point;
-                        tex.wrapMode = TextureWrapMode.Clamp;
-                        return tex;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogWarning($"[BattleStageController] Direct texture load failed for {relativePath}: {ex.Message}");
-            }
-#if UNITY_EDITOR
-            var asset = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(relativePath);
-            if (asset != null) return asset;
-#endif
-            return null;
+            return RuntimeAssets.Load<Texture2D>(relativePath);
         }
 
         public void AutoLoadIcons()
@@ -677,13 +649,11 @@ namespace DigiPurity.Combat
         private void EnsureVoiceClip()
         {
             if (voiceBlipClip != null) return;
-#if UNITY_EDITOR
-            voiceBlipClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/snd_txt_golfer.wav");
+            voiceBlipClip = RuntimeAssets.Load<AudioClip>("Assets/Audio/snd_txt_golfer.wav");
             if (voiceBlipClip == null)
             {
-                voiceBlipClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/snd_txt_default.wav");
+                voiceBlipClip = RuntimeAssets.Load<AudioClip>("Assets/Audio/snd_txt_default.wav");
             }
-#endif
             if (voiceBlipClip == null)
             {
                 int rate = 44100;
@@ -940,9 +910,7 @@ namespace DigiPurity.Combat
                     : (customSong != null ? customSong : (primaryProfile != null ? primaryProfile.battleBgm : null));
                 if (clip == null)
                 {
-#if UNITY_EDITOR
-                    clip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Audio/Battle_Beta.mp3");
-#endif
+                    clip = RuntimeAssets.Load<AudioClip>("Assets/Audio/Battle_Beta.mp3");
                 }
                 if (clip != null)
                 {
